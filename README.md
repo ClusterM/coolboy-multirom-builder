@@ -21,9 +21,11 @@ How it works (for advanced users):
 
 It sounds a bit complicated but you can use **Make** tool or just run "**!build_rom.bat**" (for Windows users).
 
-Now let me talk you much more info about every step.
+Now let me talk you much more info.
 
-## Which cartridges are supported, how to select which cartridge to buy
+## Step by step
+
+### Which cartridges are supported, how to select which cartridge to buy
 
 There are many versions of COOLBOY cartridges and clones. Actually most of them are not "COOLBOY", it's just a name of the first cartridges with this chip.
 
@@ -37,13 +39,13 @@ You can find modifications:
 
 So it's recommended to search for MINDKIDS cartridges with battery.
 
-## Which games are supported
+### Which games are supported
 
 COOLBOY cartridges can support games with **NROM** (mapper #0) and **MMC3** (mapper #4) mappers only. NROM is used by games without any mapper and MMC3 is most popular mapper, so games support is good but not perfect. Also most non-MMC3 games can be patched to run on MMC3 without any problem. Also make sure that PRG RAM and CHR size requirements are met.
 
 And one more thing with some weird buggy games. COOLBOY always uses writable CHR RAM even original game uses CHR ROM and it has not 'read-only' mode. So if game with CHR ROM writes to ROM for some weird reason, CHR data will be corrupted. It can be fixed using patches for ROMs. Example game: Cowboy Kid.
 
-## Games list format
+### Games list format
 
 It's just a text file. Lines started with semicolon are comments. Other lines has format:
 
@@ -66,7 +68,7 @@ You can use "?" symbol as menu name to add hidden ROMs:
     spec/sram.nes | ? 
     spec/controller.nes | ? 
 
-First hidden ROM will be started while holding Up+A+B at start. Second one will be started while holding Down+A+B at start. Also you can add third hidden ROM, it will be started using Konami Code in the menu :)
+First hidden ROM will be started while holding Up+A+B at start. Second one will be started while holding Down+A+B at start. I'm using it to add some hardware tests. Also you can add third hidden ROM, it will be started using Konami Code in the menu :)
 
 All games are alphabetically sorted by default so you don't need to care about games order. But if you are using custom order (--nosort option), you can use "-" symbol to add separators between games:
 
@@ -82,4 +84,85 @@ Also there is one very advanced option used to specify enlarge method. Minimum P
 
 Usually it's good for non-MMC3 games ported to MMC3.
 
+### Using CoolboyCombiner, first step
 
+CoolboyCombiner will create assembly file with all data required for menu and XML file required for second step. Usage:
+
+     CoolboyCombiner.exe prepare --games <games.txt> --asm <games.asm> --offsets <offsets.xml> [--version <number>] [--report <report.txt>] [--nosort] [--maxsize sizemb] [--language <language>] [--badsectors <sectors>]
+      --games             - input plain text file with list of ROM files
+      --asm               - output file for loader
+      --ver               - set COOLBOY version: 1 (default) for classic and 2 for new one
+                            the only difference is registers address
+                            version 1 uses registers at $600x
+                            version 2 uses registers at $500x
+      --no-flash          - disable support for writable flash memory (works on some new COOLBOYs
+                            writable flash allows to store up to 15 saves of battery backed games,
+                            it also allows to remember last menu position,
+                            disable it to free additional 256KB of ROM space if you don't need it
+      --offsets           - output file with offsets for every game
+      --report            - output report file (human readable)
+      --nosort            - disable automatic sort by name
+      --maxsize           - maximum size of the final file (in megabytes)
+      --language          - language for system messages: "eng" (default) or "rus"
+      --badsectors        - comma-separated separated list of bad sectors,
+                            if your cartridge has bad sectors for some reason,
+                            you can ask this tool to skip them
+
+Example:
+
+    CoolboyCombiner.exe prepare --games games.txt --asm games.asm --offsets offsets.xml
+    
+It will create "**games.asm**" and "**offsets.xml**" files based on games list stored in "**games.txt**".
+
+### Compiling games menu
+
+Optionally you can edit "**menu.png**" file to create custom header image in menu. You can edit only top 32 lines. Please note that top 8 lines are hidden on NTSC consoles. Of course you can use only colors limited to NES hardware. Then run:
+
+    TilesConverter.exe menu.png menu_pattern0.dat menu_nametable0.dat menu_palette0.dat
+    TilesConverter.exe menu_sprites.png menu_pattern1.dat menu_nametable1.dat menu_palette1.dat
+    
+It will create bunch of binary .dat files with images data. Now compile menu using nesasm:
+
+    nesasm.exe menu.asm
+    
+It will create "**menu.nes**" file. It's only menu. You can run it but it has not games in it until next step.
+
+### Using CoolboyCombiner, second step
+    
+It's time to combile our menu and games. Using CoolboyCombiner second time:
+    
+    CoolboyCombiner.exe combine --loader <menu.nes> --offsets <offsets.xml> [--unif <multirom.unf>] [--bin <multirom.bin>]
+      --ver               - use version from the first step, sets the propper mapper
+      --loader            - loader (compiled using asm file generated by first step)
+      --offsets           - input file with offsets for every game (generated by first step)
+      --unif              - output UNIF file
+      --bin               - output raw binary file
+      
+Example:
+    
+    CoolboyCombiner.exe combine --loader menu.nes --offsets offsets.xml --unif multirom.unf
+    
+It will use "**menu.nes**" and "**offsets.xml**" files from previous steps to create "**multirom.unf**" file. Done!
+
+## Using menu
+
+Buttons:
+* **Up** - move to previous game
+* **Down** - move to next game
+* **Right** - jump 10 games forward
+* **Left** - jump 10 games backward
+* **Start** - start selected game
+* **A** - same, start selected game
+* **B** - not used
+
+Special combinations:
+* Hold **Select** on start to show some build and hardware info
+* Hold **Select**+**A**+**B** on start RAM tests, it will test PRG RAM and 256KB of CHR data
+* Hold **Left**+**Up**+**Select**+**Start** on start to erase all saved data
+* Hold **Up**+**A**+**B** on start to start first hidden ROM
+* Hold **Down**+**A**+**B** on start to start second hidden ROM
+* Press **Up**, **Up**, **Down**, **Down**, **Left**, **Right**, **Left**, **Right**, **B**, **A** to start third hidden ROM
+
+## Donation
+
+PayPal: clusterrr@clusterrr.com
