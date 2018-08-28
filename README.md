@@ -1,5 +1,5 @@
 # coolboy-multirom-builder
-Toolset that allows you to create multirom images for cheap COOLBOY (and clones) Famicom cartridges. Which can be writed with my other tool: https://github.com/ClusterM/famicom-dumper-client
+It's toolset that allows you to create multirom images for cheap COOLBOY (and clones) Famicom cartridges. Which can be writed with my other tool: https://github.com/ClusterM/famicom-dumper-client
 
 Features:
 * Combines up to 768 games into single binary which can be writed to cheap COOLBOY cartridge
@@ -162,6 +162,10 @@ Special combinations:
 * Hold **Up**+**A**+**B** on start to start first hidden ROM
 * Hold **Down**+**A**+**B** on start to start second hidden ROM
 * Press **Up**, **Up**, **Down**, **Down**, **Left**, **Right**, **Left**, **Right**, **B**, **A** to start third hidden ROM
+
+## About flash saving system
+
+When cartridge with a directly writable flash memory used (/WE and /OE pins are connected to mapper), it's possible to use this memory as additional storage. If "--no-flash" option is not specified last two sectors of flash memory (256KBytes) will be reserved for it. This memory will be used to store cursor position and progress of battery-backed games (even if cartridge has not battery but you'll need to press reset to save the progress in this case). Please note that flash memory is not rewrited every time. New data will be writed to free space on active sector marked by signature. When active sector is full, all actual data will be moved to second sector. User will be warned to keep power on.
 
 ## Donation
 
