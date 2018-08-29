@@ -1,5 +1,5 @@
 NESASM=tools/nesasm.exe
-EMU=/D/Emulators/fceux/fceux.exe
+EMU=tools/fceux/fceux.exe
 SOURCES=menu.asm
 MENU=menu.nes
 CONVERTER=tools/TilesConverter.exe
@@ -15,10 +15,10 @@ OFFSETS?=offsets_$(GAMES).xml
 REPORT?=report_$(GAMES).txt
 EXECUTABLE?=menu_$(GAMES).nes
 UNIF?=multirom_$(GAMES).unf
-LANGUAGE?=rus
+LANGUAGE?=eng
 COOLBOY_VERSION?=1
-NESASM_OPTS+=--symbols=$(UNIF) --symbols-offset=24 -iWss
-COMBINER_OPTS+=--use-flash --version $(COOLBOY_VERSION)
+#NESASM_OPTS+=--symbols=$(UNIF) --symbols-offset=24 -iWss
+COMBINER_OPTS+=--ver $(COOLBOY_VERSION)
 
 ifneq ($(NOSORT),0)
 SORT=--nosort
@@ -30,6 +30,7 @@ endif
 
 all: $(UNIF)
 build: $(UNIF)
+unif: $(UNIF)
 
 $(EXECUTABLE): $(SOURCES) menu_pattern0.dat menu_nametable0.dat menu_palette0.dat menu_pattern1.dat menu_palette1.dat games.asm
 	$(NESASM) $(SOURCES) --output=$(EXECUTABLE) $(NESASM_OPTS)
@@ -66,26 +67,14 @@ menu_pattern1.dat: menu_sprites
 menu_nametable1.dat: menu_sprites
 menu_palette1.dat: menu_sprites
 
-logo_pattern.dat: logo
-logo_nametable.dat: logo
-logo_palette.dat: logo
-
 menu_bg: $(MENU_IMAGE)
 	$(CONVERTER) $(MENU_IMAGE) menu_pattern0.dat menu_nametable0.dat menu_palette0.dat
 
 menu_sprites: menu_sprites.png
 	$(CONVERTER) menu_sprites.png menu_pattern1.dat menu_nametable1.dat menu_palette1.dat
 
-fulltest:
-	$(DUMPER) test-coolboy --port $(PORT) --sound
-
-fulltest1:
-	$(DUMPER) test-coolboy --port $(PORT) --sound --testcount 1
-
 badstest:
 	$(DUMPER) test-bads-coolboy --port $(PORT) --sound
-
-fulltestflash: fulltest1 clean flash	
 
 sramtest:
 	$(DUMPER) test-prg-ram -p $(PORT) --mapper coolboy --sound

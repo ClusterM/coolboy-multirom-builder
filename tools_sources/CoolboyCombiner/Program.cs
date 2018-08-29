@@ -38,7 +38,7 @@ namespace Cluster.Famicom
             string optionLanguage = "eng";
             bool optionNoSort = false;
             int optionMaxSize = 32;
-            bool useFlashWriting = false;
+            bool useFlashWriting = true;
             int coolboyVersion = 1;
             List<int> badSectors = new List<int>();
             if (args.Length > 0) command = args[0].ToLower();
@@ -99,8 +99,8 @@ namespace Cluster.Famicom
                             badSectors.Add(int.Parse(v));
                         i++;
                         break;
-                    case "use-flash":
-                        useFlashWriting = true;
+                    case "no-flash":
+                        useFlashWriting = false;
                         break;
                     case "ver":
                         coolboyVersion = int.Parse(value);
@@ -149,17 +149,17 @@ namespace Cluster.Famicom
             {
                 Console.WriteLine("--- Usage ---");
                 Console.WriteLine("First step:");
-                Console.WriteLine(" CoolboyCombiner.exe prepare --games <games.txt> --asm <games.asm> --offsets <offsets.xml> [--version <number>] [--report <report.txt>] [--nosort] [--maxsize sizemb] [--language <language>] [--badsectors <sectors>");
+                Console.WriteLine(" CoolboyCombiner.exe prepare --games <games.txt> --asm <games.asm> --offsets <offsets.xml> [--version <number>] [--report <report.txt>] [--nosort] [--maxsize sizemb] [--language <language>] [--badsectors <sectors>]");
                 Console.WriteLine("  {0,-20}{1}", "--games", "- input plain text file with list of ROM files");
                 Console.WriteLine("  {0,-20}{1}", "--asm", "- output file for loader");
                 Console.WriteLine("  {0,-20}{1}", "--ver", "- set COOLBOY version: 1 (default) for classic and 2 for new one");
                 Console.WriteLine("  {0,-20}{1}", "", "  the only difference is registers address");
                 Console.WriteLine("  {0,-20}{1}", "", "  version 1 uses registers at $600x");
                 Console.WriteLine("  {0,-20}{1}", "", "  version 2 uses registers at $500x");
-                Console.WriteLine("  {0,-20}{1}", "--use-flash", "- enable support for writable flash memory (for some new COOLBOYs)");
-                Console.WriteLine("  {0,-20}{1}", "", "  it allows to store up to 15 saves of battery backed games,");
+                Console.WriteLine("  {0,-20}{1}", "--no-flash", "- disable support for writable flash memory (works on some new COOLBOYs");
+                Console.WriteLine("  {0,-20}{1}", "", "  writable flash allows to store up to 15 saves of battery backed games,");
                 Console.WriteLine("  {0,-20}{1}", "", "  it also allows to remember last menu position,");
-                Console.WriteLine("  {0,-20}{1}", "", "  it's safe to enable it for any cartridge version but it requires additional 256KB of ROM space");
+                Console.WriteLine("  {0,-20}{1}", "", "  disable it to free additional 256KB of ROM space if you don't need it");
                 Console.WriteLine("  {0,-20}{1}", "--offsets", "- output file with offsets for every game");
                 Console.WriteLine("  {0,-20}{1}", "--report", "- output report file (human readable)");
                 Console.WriteLine("  {0,-20}{1}", "--nosort", "- disable automatic sort by name");
@@ -261,7 +261,6 @@ namespace Cluster.Famicom
                     }
 
                     int usedSpace = 0;
-                    // TODO: storing to XML order
                     var sortedPrgs = from game in games orderby game.ROM.PRG.Length descending select game;
                     foreach (var game in sortedPrgs)
                     {
@@ -340,6 +339,7 @@ namespace Cluster.Famicom
                     }
                     while (usedSpace % 0x8000 != 0)
                         usedSpace++;
+                    usedSpace = Math.Max(usedSpace, loaderOffset + loaderSize); // Target ROM can't be smaller end of loader
                     int romSize = usedSpace;
                     if (useFlashWriting)
                         usedSpace += 128 * 1024 * 2;
