@@ -389,7 +389,7 @@ namespace Cluster.Famicom
                         throw new Exception("Games list is empty");
 
                     if (usedSpace > optionMaxSize * 1024 * 1024)
-                        throw new Exception(string.Format("ROM is too big: {0} MB", Math.Round(usedSpace / 1024.0 / 1024.0, 3)));
+                        throw new Exception(string.Format("ROM is too big: {0} KB", usedSpace / 1024));
                     if (games.Count > 768)
                         throw new Exception("Too many games: " + games.Count);
                     if (saveId > 15)
