@@ -776,7 +776,7 @@ namespace Cluster.Famicom
                                     u.Mapper = "COOLBOY";
                                     break;
                                 case 2:
-                                    u.Mapper = "MINDKIDS";
+                                    u.Mapper = "COOLBOY2";
                                     break;
                             }
 

@@ -1,14 +1,14 @@
-	; сам запуск игры
+	; starting game!
 start_game:
-	sei ; больше никаких прерываний
+	sei ; no interrupts
 
-	lda #%00000000 ; выключаем экран, чтобы не смотреть на глюки
+	lda #%00000000 ; disable PPU
 	sta $2000
 	lda #%00000000
 	sta $2001
 	
 	.if SECRETS>=3
-	; проверяем, не вводился ли konami code
+	; check for konami code
 	lda <KONAMI_CODE_STATE
 	cmp konami_code_length
 	bne .no_konami_code
@@ -21,8 +21,8 @@ start_game:
 	sta <SELECTED_GAME+1
 .no_konami_code:
 	.endif
-	jsr waitblank_simple ; ждём vblank
-	jsr clear_screen ; очищаем nametable
+	jsr waitblank_simple ; wait for vblank
+	jsr clear_screen ; clear nametable
 	jsr clear_sprites
 	jsr sprite_dma_copy
 	
@@ -71,7 +71,7 @@ start_game:
 	lda incompatible_console_text, y
 	sta $2007
 	iny
-	cmp #0 ; после завершающего нуля перестаём читать символы
+	cmp #0
 	bne .incompatible_print_error
 	lda #$23
 	sta $2006
@@ -104,7 +104,7 @@ start_game:
 	jmp Start
 
 .compatible_console:
-	jsr load_black ; чёрный цвет
+	;jsr load_black ; black color
 	jsr save_state
 	jsr load_all_chr_banks	
 	

@@ -1,4 +1,4 @@
-	; тут задаются параметры для запуска лоадера
+	; settings for loader
 LOADER_REG_0 .rs 1
 LOADER_REG_1 .rs 1
 LOADER_REG_2 .rs 1
@@ -17,7 +17,7 @@ NROM_BANK_L .rs 1 ; to select 16K bank
 NROM_BANK_S .rs 1 ; for loader
 
 loader:
-	; выставляем регистры согласно заданным параметрам
+	; sets COOLBOY registers
 	lda <LOADER_MIRRORING
 	sta $A000
 	lda <LOADER_REG_0

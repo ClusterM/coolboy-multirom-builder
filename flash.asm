@@ -24,7 +24,7 @@ flash_detect:
 .end:
 	lda #$F0
 	sta $8000
-	rts
+	jmp flash_return
 
 	; NROM_BANK_L, NROM_BANK_H - bank
 flash_erase_sector:
