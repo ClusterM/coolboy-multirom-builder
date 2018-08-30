@@ -14,7 +14,7 @@ Features:
 * Can add up to three hidden ROMs for Up+A+B, Down+A+B and Konami Code combinations
 
 How it works (for advanced users):
-1. You need to create a text file with list of files and/or directories with ROMs, optionally you can specify game name for menu entry.
+1. You need to create a text file with a list of files and/or directories with ROMs, optionally you can specify game names for corresponding menu entries.
 2. Run **CoolboyCombiner.exe** with "**prepare**" option, it will automatically use best way to fit game's data in the target ROM and create "**games.asm**" and offsets files. First one contains game names and commands for cartridge's chip to start them. Second file will contain info with address of data for every game in the final ROM.
 3. Compile "**menu.asm**" using **nesasm** option. I'm using my own modification: https://github.com/ClusterM/nesasm. It will create .nes file with games menu.
 4. After it you need to combine menu and games into one file. Run **CoolboyCombiner.exe** with "**combine**" option.
