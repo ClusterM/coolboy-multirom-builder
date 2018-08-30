@@ -9,19 +9,17 @@ ENABLE_STARS .equ 1
 ENABLE_START_SCROLLING .equ 0
 ENABLE_LAST_GAME_SAVING .equ 1
 ENABLE_TOP_OFFSET .equ 0
+ENABLE_RIGHT_CURSOR .equ 1
 GAME_NAMES_OFFSET .equ 2
 
 	.include "games.asm"
 
 	.rsset $0200
-BUFFER .rs 256
+BUFFER .rs 256 ; buffer for all I/O operations
 	.rsset $0300
-PRG_RAM_FIX .rs 256
+PRG_RAM_FIX .rs 256 ; buffer for COOLBOY's PRG RAM highest bit
 
-	;место под лоадер
-	.rsset $0500
-LOADER .rs 0
-	; выбираем область памяти для информации о спрайтах
+	; sprites data
 	.rsset $0400
 SPRITES .rs 0
 SPRITE_0_Y .rs 1
@@ -42,13 +40,13 @@ TMP .rs 2
 	; selected game
 SELECTED_GAME .rs 2
 
-	.bank 15   ; последний банк
-	.org $FFFA  ; тут у нас хранятся векторы
-	.dw NMI    ; NMI вектор
-	.dw Start  ; ресет-вектор, указываем на начало программы
-	.dw IRQ    ; прерывания
+	.bank 15   ; last bank
+	.org $FFFA ; vectors
+	.dw NMI    ; NMI vector
+	.dw Start  ; reset vector
+	.dw IRQ    ; interrupts
 
-	.bank 15   ; последний банк
+	.bank 15   ; last bank
 	.org $E000
 
 Start:
@@ -81,7 +79,7 @@ Start:
 	jsr clear_screen
 	jsr load_black
 	
-	; включаем PPU и гордо демонстрируем чёрный экран четверть секунды
+	; enable PPU to show black screen
 	lda #%00001010
 	sta $2001
 	
@@ -94,13 +92,13 @@ Start:
 	
 	jsr console_detect
 
-	lda #%00000000 ; выключаем пока что PPU
+	lda #%00000000 ; disable PPU
 	sta $2001
 	jsr waitblank_simple
 
 	ldx #$00
 .loadloader:
-	lda loader+$C000, x ; копируем наш лоадер в оперативную память
+	lda loader+$C000, x ; loading loader and other RAM routines
 	sta loader, x
 	lda loader+$C100, x
 	sta loader+$100, x
@@ -109,12 +107,12 @@ Start:
 	inx             
 	bne .loadloader
 
-	jsr banking_init
-	jsr flash_detect
-	jsr load_base_chr
-	jsr load_base_pal
-	jsr clear_sprites
-	jsr sprite_dma_copy
+	jsr banking_init ; init banks
+	jsr flash_detect ; detect flash memory type
+	jsr load_base_chr ; load CHR data
+	jsr load_base_pal ; palette
+	jsr clear_sprites ; clear all sprites data
+	jsr sprite_dma_copy ; load this empty sprites data
 
 	; init variables
 	lda #0
@@ -126,8 +124,8 @@ Start:
 	sta <KONAMI_CODE_STATE
 	sta <LAST_STARTED_SAVE
 	
-	jsr read_controller
-	jsr load_state ; загружаем сохранённое состояние
+	jsr read_controller ; read buttons
+	jsr load_state ; loading saved cursor position and other data
 
 	lda <SCROLL_LINES_TARGET
 	sta <SCROLL_LINES
@@ -138,7 +136,7 @@ Start:
 	sta <LAST_LINE_GAME+1
 	sta <TMP+1
 	
-	; один раз вычисляем остаток от деления на 30
+	; calculate modulo
 .init_modulo:
 	lda <TMP+1
 	bne .do_init_modulo
@@ -162,34 +160,35 @@ Start:
 
 	jsr set_cursor_targets
 
-	; настраиваем нужные нам спрайты
+	; sprites init
 	ldx <SPRITE_0_X_TARGET
 	stx SPRITE_0_X
 	ldx <SPRITE_1_X_TARGET
 	stx SPRITE_1_X
 	ldx <SPRITE_0_Y_TARGET
-	;ldx #$03
 	stx SPRITE_0_Y
 	stx SPRITE_1_Y
 	ldx #$00
 	stx SPRITE_0_TILE
-	;ldx #$FF ; скрыть правый указатель
+	.if ENABLE_RIGHT_CURSOR=0
+	ldx #$FF ;hide right cursor
+	.endif
 	stx SPRITE_1_TILE
 	ldx #%00000000
 	stx SPRITE_0_ATTR
 	ldx #%01000000
 	stx SPRITE_1_ATTR
 	
-	; обнуляем и этот счётчик
+	; reser stars spawn timer
 	lda #0
 	sta <STAR_SPAWN_TIMER
-	; инициализируем генератор случайных чисел
+	; init random number generator
 	jsr random_init
 
 	lda #%00000100
 	cmp <BUTTONS
 	bne .skip_build_info	
-	; информация о сборке
+	; build and hardware info
 	jmp show_build_info
 .skip_build_info:
 	ldx games_count
@@ -199,6 +198,7 @@ Start:
 	stx <SELECTED_GAME+1
 	jmp start_game
 .not_single_game:
+	.if SECRETS>=1
 	lda #%00010011
 	cmp <BUTTONS
 	bne .not_hidden_rom_1
@@ -208,6 +208,8 @@ Start:
 	sta <SELECTED_GAME+1
 	jmp start_game
 .not_hidden_rom_1:
+	.endif
+	.if SECRETS>=2
 	lda #%00100011
 	cmp <BUTTONS
 	bne .not_hidden_rom_2
@@ -220,13 +222,14 @@ Start:
 	sta <SELECTED_GAME+1
 	jmp start_game
 .not_hidden_rom_2:
+	.endif
 	lda #%00000111
 	cmp <BUTTONS
 	bne .not_tests
 	jmp do_tests
 .not_tests:
 
-	; выводим названия игр
+	; printing game names
 	ldx #15
 	jsr print_last_name
 .print_next_game_at_start:
@@ -253,9 +256,7 @@ Start:
 	sta $2001
 	
 	; start scrolling
-	.if ENABLE_START_SCROLLING=0
-	jmp .intro_scroll_end ; skip scroppling
-	.endif
+	.if ENABLE_START_SCROLLING!=0
 	lda <SELECTED_GAME ; but only if first game selected
 	bne .intro_scroll_end
 	lda <SELECTED_GAME+1
@@ -282,20 +283,20 @@ Start:
 	.endif
 	bne .intro_scroll	
 	.intro_scroll_end:
+	.endif
 
-	; скроллим
 	jsr scroll_fix
-	; обновляем положение спрайтов через DMA
+	; updating sprites
 	jsr sprite_dma_copy
-	lda #%00001000  ; теперь nametable - первый
+	lda #%00001000  ; switch to first nametable
 	sta $2000
-	lda #%00011110  ; и включаем спрайты
+	lda #%00011110  ; enable sprites
 	sta $2001
 	
-	; не держите кнопки!
+	; do not hold buttons!
 	jsr wait_buttons_not_pressed
 
-	; основной бесконечный цикл
+	; main loop
 infin:	
 	jsr waitblank
 	jsr buttons_check
@@ -317,10 +318,7 @@ IRQ: ; not used
 	.include "saves.asm"
 	.include "preloader.asm"
 
-chr_address: ; чтобы знать, где хранится CHR
-	.dw chr_data
-	
-	; паттерны
+	; patterns
 	.bank 12
 	.org $8000
 chr_data:

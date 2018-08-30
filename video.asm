@@ -159,10 +159,10 @@ load_base_chr:
 	; loading CHR
 	lda #$06
 	jsr select_bank
-	lda chr_address ;#$00	
-	sta COPY_SOURCE_ADDR ; #$00
-	lda chr_address+1 ;#$C0
-	sta COPY_SOURCE_ADDR+1 ; #$A0
+	lda #LOW(chr_data)
+	sta COPY_SOURCE_ADDR
+	lda #HIGH(chr_data)
+	sta COPY_SOURCE_ADDR+1
 	jsr load_chr
 	rts
 

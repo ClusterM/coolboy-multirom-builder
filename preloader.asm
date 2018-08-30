@@ -7,6 +7,7 @@ start_game:
 	lda #%00000000
 	sta $2001
 	
+	.if SECRETS>=3
 	; проверяем, не вводился ли konami code
 	lda <KONAMI_CODE_STATE
 	cmp konami_code_length
@@ -19,6 +20,7 @@ start_game:
 	adc #0
 	sta <SELECTED_GAME+1
 .no_konami_code:
+	.endif
 	jsr waitblank_simple ; ждём vblank
 	jsr clear_screen ; очищаем nametable
 	jsr clear_sprites

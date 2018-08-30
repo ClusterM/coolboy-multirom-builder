@@ -642,6 +642,7 @@ namespace Cluster.Famicom
                     {
                         asmResult.AppendLine("USE_FLASH_WRITING .equ 0");
                     }
+                    asmResult.AppendLine("SECRETS .equ " + hiddenCount);
 
                     File.WriteAllText(optionAsm, asmResult.ToString());
 
