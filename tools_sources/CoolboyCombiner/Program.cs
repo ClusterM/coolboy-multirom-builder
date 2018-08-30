@@ -373,12 +373,12 @@ namespace Cluster.Famicom
 
                     namesIncluded.Add("");
                     namesIncluded.Add("Total games: " + (games.Count - hiddenCount));
-                    namesIncluded.Add("Final ROM size: " + Math.Round(usedSpace / 1024.0 / 1024.0, 3) + "MB");
+                    namesIncluded.Add("Final ROM size: " + (usedSpace / 1024) + "KB");
                     namesIncluded.Add("Maximum CHR size: " + maxChrSize / 1024 + "KB");
                     namesIncluded.Add("Battery-backed games: " + saveId);
 
                     Console.WriteLine("Total games: " + (games.Count - hiddenCount));
-                    Console.WriteLine("Final ROM size: " + Math.Round(usedSpace / 1024.0 / 1024.0, 3) + "MB");
+                    Console.WriteLine("Final ROM size: " + (usedSpace / 1024) + "KB");
                     Console.WriteLine("Maximum CHR size: " + maxChrSize / 1024 + "KB");
                     Console.WriteLine("Battery-backed games: " + saveId);
 
@@ -638,7 +638,8 @@ namespace Cluster.Famicom
                     if (useFlashWriting)
                     {
                         asmResult.AppendLine("USE_FLASH_WRITING .equ 1");
-                    } else
+                    }
+                    else
                     {
                         asmResult.AppendLine("USE_FLASH_WRITING .equ 0");
                     }
@@ -769,7 +770,7 @@ namespace Cluster.Famicom
                         if (!string.IsNullOrEmpty(optionUnif))
                         {
                             var u = new UnifFile();
-                            switch(coolboyVersion)
+                            switch (coolboyVersion)
                             {
                                 default:
                                     u.Mapper = "COOLBOY";
@@ -778,7 +779,7 @@ namespace Cluster.Famicom
                                     u.Mapper = "MINDKIDS";
                                     break;
                             }
-                            
+
                             u.Fields["MIRR"] = new byte[] { 5 };
                             u.Fields["PRG0"] = result;
                             u.Fields["BATR"] = new byte[] { 1 };
@@ -1018,7 +1019,7 @@ namespace Cluster.Famicom
                 if (MenuName != null)
                 {
                     if (MenuName.StartsWith("+"))
-                        name= MenuName.Substring(1).Trim();
+                        name = MenuName.Substring(1).Trim();
                     else
                         name = MenuName.Trim();
                 }
