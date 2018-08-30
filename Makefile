@@ -17,7 +17,7 @@ EXECUTABLE?=menu_$(GAMES).nes
 UNIF?=multirom_$(GAMES).unf
 LANGUAGE?=eng
 COOLBOY_VERSION?=1
-#NESASM_OPTS+=--symbols=$(UNIF) --symbols-offset=24 -iWss
+NESASM_OPTS+=--symbols=$(UNIF) --symbols-offset=24 -iWss
 COMBINER_OPTS+=--ver $(COOLBOY_VERSION)
 
 ifneq ($(NOSORT),0)

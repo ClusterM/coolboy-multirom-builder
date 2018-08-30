@@ -152,7 +152,7 @@ namespace Cluster.Famicom
                 Console.WriteLine(" CoolboyCombiner.exe prepare --games <games.txt> --asm <games.asm> --offsets <offsets.xml> [--version <number>] [--report <report.txt>] [--nosort] [--maxsize sizemb] [--language <language>] [--badsectors <sectors>]");
                 Console.WriteLine("  {0,-20}{1}", "--games", "- input plain text file with list of ROM files");
                 Console.WriteLine("  {0,-20}{1}", "--asm", "- output file for loader");
-                Console.WriteLine("  {0,-20}{1}", "--ver", "- set COOLBOY version: 1 (default) for classic and 2 for new one");
+                Console.WriteLine("  {0,-20}{1}", "--ver", "- set COOLBOY version: 1 (default) for classic and 2 for new one (aka MINDKIDS)");
                 Console.WriteLine("  {0,-20}{1}", "", "  the only difference is registers address");
                 Console.WriteLine("  {0,-20}{1}", "", "  version 1 uses registers at $600x");
                 Console.WriteLine("  {0,-20}{1}", "", "  version 2 uses registers at $500x");
@@ -776,7 +776,7 @@ namespace Cluster.Famicom
                                     u.Mapper = "COOLBOY";
                                     break;
                                 case 2:
-                                    u.Mapper = "COOLBOY2";
+                                    u.Mapper = "MINDKIDS";
                                     break;
                             }
 
