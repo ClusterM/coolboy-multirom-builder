@@ -26,9 +26,19 @@ if "%1"=="clean" exit 0
 if /I %SORT_GAMES% NEQ TRUE SET NOSORTP=--nosort
 @echo on
 %TILES_CONVERTER% %MENU_IMAGE% menu_pattern0.dat menu_nametable0.dat menu_palette0.dat
+@if %ERRORLEVEL% neq 0 goto error
 %TILES_CONVERTER% menu_sprites.png menu_pattern1.dat menu_nametable1.dat menu_palette1.dat
+@if %ERRORLEVEL% neq 0 goto error
 %COMBINER% prepare --games %GAMES_LIST% --asm games.asm --maxsize %MAX_SIZE% --offsets %OFFSETS_FILE% --report %REPORT_FILE% %NOSORTP%
+@if %ERRORLEVEL% neq 0 goto error
 %NESASM% menu.asm
+@if %ERRORLEVEL% neq 0 goto error
 %COMBINER% combine --loader menu.nes --offsets %OFFSETS_FILE% --unif %OUTPUT_UNIF% --bin %OUTPUT_BIN%
+@if %ERRORLEVEL% neq 0 goto error
 @if exist %OUTPUT_UNIF% echo Seems like everything is fine! %OUTPUT_UNIF% created.
 @pause
+@exit 0
+:error
+@echo Oops, something is wrong!
+@pause
+exit 1

@@ -1,9 +1,9 @@
 # Coolboy Multirom Builder
 
-It's a toolset that allows you to create multirom images for cheap COOLBOY (and clones) Famicom cartridges. Which can be writed with my other tool: https://github.com/ClusterM/famicom-dumper-client
+It's a toolset that allows you to create multirom images for cheap COOLBOY (and clones) Famicom cartridges. Which can be written with my other tool: https://github.com/ClusterM/famicom-dumper-client
 
 Features:
-* It can combine up to 768 games into single binary which can be writed to cheap COOLBOY cartridge
+* It can combine up to 768 games into single binary which can be written to cheap COOLBOY cartridge
 * Create menu where you can easily select game
 * Can alphabetically sort games in menu if you need it
 * Allows to use your own image for menu header
