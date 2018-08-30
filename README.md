@@ -20,7 +20,7 @@ How it works (for advanced users):
 4. After it you need to combine menu and games into one file. Run **CoolboyCombiner.exe** with "**combine**" option.
 5. Done.
 
-It sounds a bit complicated but you can use **Make** tool or just run "**!build_rom.bat**" (for Windows users).
+It sounds a bit complicated but this toolset is bundled with Makefile for **Make** tool to automatize the whole process. Windows users can use "**!build_rom.bat**" batch file. Default games list file is "**games.list**".
 
 Now let me talk you much more info.
 
