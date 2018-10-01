@@ -622,7 +622,7 @@ namespace Cluster.Famicom
                     asmResult.AppendLine();
                     switch (coolboyVersion)
                     {
-                        default:
+                        case 1:
                             asmResult.AppendLine("COOLBOY_REG_0 .equ $6000");
                             asmResult.AppendLine("COOLBOY_REG_1 .equ $6001");
                             asmResult.AppendLine("COOLBOY_REG_2 .equ $6002");
@@ -634,6 +634,8 @@ namespace Cluster.Famicom
                             asmResult.AppendLine("COOLBOY_REG_2 .equ $5002");
                             asmResult.AppendLine("COOLBOY_REG_3 .equ $5003");
                             break;
+                        default:
+                            throw new Exception("Unknown version: 2");
                     }
                     if (useFlashWriting)
                     {
@@ -772,12 +774,14 @@ namespace Cluster.Famicom
                             var u = new UnifFile();
                             switch (coolboyVersion)
                             {
-                                default:
+                                case 1:
                                     u.Mapper = "COOLBOY";
                                     break;
                                 case 2:
                                     u.Mapper = "MINDKIDS";
                                     break;
+                                default:
+                                    throw new Exception("Unknown version: 2");
                             }
 
                             u.Fields["MIRR"] = new byte[] { 5 };
