@@ -1,8 +1,8 @@
 ; INES header stuff
-	.inesprg 8   ; 8 банков кода - 128KB
-	.ineschr 0   ; нет CHR
-	.inesmir 0   ; мирроринг
-	.inesmap 4   ; MMC3
+	.inesprg 8   ; 8 banks of PRG = 128kB
+	.ineschr 0   ; no CHR, RAM only
+	.inesmir 0   ; mirroring (ignored)
+	.inesmap 4   ; MMC3 mapper
 
 	; settings
 ENABLE_STARS .equ 1

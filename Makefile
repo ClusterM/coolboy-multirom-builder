@@ -57,7 +57,7 @@ runmenu: $(EXECUTABLE)
 	$(EMU) $(EXECUTABLE)
 
 flash: clean $(UNIF)
-	$(DUMPER) write-coolboy --file $(UNIF) --port $(PORT) $(BADS) --sound --check
+	$(DUMPER) write-coolboy --file $(UNIF) --port $(PORT) $(BADS) --sound --check --lock
 
 menu_pattern0.dat: menu_bg
 menu_nametable0.dat: menu_bg
