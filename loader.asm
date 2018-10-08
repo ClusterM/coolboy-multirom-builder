@@ -59,6 +59,15 @@ loader:
 	inc <COPY_DEST_ADDR+1
 	bpl .prg_ram_loop
 	sty $A001 ; disable PRG RAM
+	ldx #$06
+	ldy #$00
+	stx $8000 ; init MMC3 (required by some games and ports)
+	sty $8001
+	inx
+	stx $8000
+	iny
+	sty $8001
+
 	jmp loader_clean_and_start
 
 loader_end:

@@ -8,6 +8,7 @@ SET SORT_GAMES=TRUE
 SET TILES_CONVERTER=tools\TilesConverter.exe
 SET COMBINER=tools\CoolboyCombiner.exe
 SET NESASM=tools\nesasm.exe
+rem SET NESASM=%NESASM% --symbols=%OUTPUT_UNIF% --symbols-offset=24 -iWss 
 SET OFFSETS_FILE=offsets.xml
 SET REPORT_FILE=report.txt
 SET VERSION=1
@@ -20,6 +21,7 @@ if exist menu_palette0.dat del menu_palette0.dat
 if exist menu_pattern1.dat del menu_pattern1.dat
 if exist menu_palette1.dat del menu_palette1.dat
 if exist games.asm del games.asm
+if exist *.nl del *.nl
 if exist %OFFSETS_FILE% del %OFFSETS_FILE%
 if exist %REPORT_FILE% del %REPORT_FILE%
 if exist %OUTPUT_UNIF% del %OUTPUT_UNIF%
