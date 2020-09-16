@@ -449,11 +449,11 @@ print_name:
 .print_text_line:
 	lda <TEXT_DRAW_GAME+1
 	jsr select_bank
-	lda game_names_list
+	lda #LOW(game_names)
 	clc
 	adc <TEXT_DRAW_GAME
 	sta <TMP
-	lda game_names_list+1
+	lda #HIGH(game_names)
 	adc #0
 	sta <TMP+1
 	lda <TMP

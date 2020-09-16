@@ -534,8 +534,8 @@ namespace Cluster.Famicom
                             asmResult.AppendLine();
                             asmResult.AppendLine("  .bank " + (baseBank + c / 256 * 2));
                             asmResult.AppendLine("  .org $9000");
-                            asmResult.AppendLine("game_names_list" + (c == 0 ? "" : "_" + c.ToString()) + ":");
-                            asmResult.AppendLine("  .dw game_names" + (c == 0 ? "" : "_" + c.ToString()));
+                            //asmResult.AppendLine("game_names_list" + (c == 0 ? "" : "_" + c.ToString()) + ":");
+                            //asmResult.AppendLine("  .dw game_names" + (c == 0 ? "" : "_" + c.ToString()));
                             asmResult.AppendLine("game_names" + (c == 0 ? "" : "_" + c.ToString()) + ":");
                         }
                         //asmResult.AppendFormat(((c > 0) ? "," : "") + " game_name_" + c);
