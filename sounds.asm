@@ -19,7 +19,7 @@ reset_sound:
     stx $4017 ; disable APU frame IRQ
 	rts
 	
-	; звук перемещения курсора
+	; cursor moving sound
 bleep:
 	;rts ; выключить звук
 	lda #%00000001
@@ -38,6 +38,7 @@ bleep:
 	sta $4003
 	rts
 
+  ; short beep sound
 bleep_short:
 	lda #%00000100
 	sta $4015
@@ -49,6 +50,7 @@ bleep_short:
 	sta $400B
 	rts
 
+  ; error sound
 error_sound:
 	lda #%00000100
 	sta $4015
@@ -60,17 +62,15 @@ error_sound:
 	sta $400B
 	rts
 	
-	; звук запуска игры
+	; game start sound
 start_sound:
 	lda <KONAMI_CODE_STATE
 	cmp konami_code_length
 	beq start_sound_alt
 
-	;rts ; выключить звук
 	lda #%00000001
 	sta $4015 ;enable channel(s)	
 	;square 1
-	;lda #%10011111  ; 50% duty, max volume
 	lda #%00111111
 	sta $4000
 	;lda #%10100010  ; sweep 
@@ -84,7 +84,7 @@ start_sound:
 	sta $4003
 	rts
 	
-	; звук запуска игры при вводе конами кода
+	; Konami Code sound
 start_sound_alt:
 	lda #%00000001
 	sta $4015 ;enable channel(s)	

@@ -36,7 +36,7 @@ random:
 console_detect:
 	ldx #0
 	ldy #0
-	; Определяем тип консоли
+	; Console type detect
 .detect_l:
 	inx
 	bne .detect_s

@@ -1,36 +1,35 @@
-BUTTONS .rs 1 ; текущие нажатия кнопок
-BUTTONS_TMP .rs 1 ; временная переменная для кнопок
-BUTTONS_HOLD_TIME .rs 1 ; время удержания вверх или вниз
-KONAMI_CODE_STATE .rs 1 ; состояние KONAMI кода
+BUTTONS .rs 1 ; currently pressed buttons
+BUTTONS_TMP .rs 1 ; temporary variable for buttons
+BUTTONS_HOLD_TIME .rs 1 ; up/down/left/right buttons hold time
+KONAMI_CODE_STATE .rs 1 ; Konami Code state
 
-	; чтение контроллера, два раза
+	; controller reading, two times
 read_controller:
 	pha
 	tya
 	pha
 	txa
 	pha
-	jsr .real ; первый раз
+	jsr .real ; first read
 	ldx <BUTTONS_TMP
-	jsr .real ; второй раз
-	cpx <BUTTONS_TMP ; сравниваем два значения
-	bne .end ; если они не совпадают, больше ничего не делаем
-	stx <BUTTONS ; записываем значения
+	jsr .real ; second read
+	cpx <BUTTONS_TMP ; lets compare values
+	bne .end ; ignore it if not equal
+	stx <BUTTONS ; storing value
 	txa
-	and #%11110000 ; вверх и вниз
-	beq .no_up_down ; если они не нажаты...
-	inc	<BUTTONS_HOLD_TIME ; увеличиваем время удержания кнопок
+	and #%11110000 ; up/down/left/right
+	beq .no_up_down ; is pressed?
+	inc	<BUTTONS_HOLD_TIME ; increasing hold time
 	lda <BUTTONS_HOLD_TIME
-	cmp #60 ; держим их долго?
-	bcc .end ; нет
-	lda #0 ; да, якобы отпускаем все кнопки
+	cmp #60 ; is it holding long enought?
+	bcc .end ; no
+	lda #0 ; yes, it's long enought, so lets "release" buttons
 	sta <BUTTONS
-	lda #50 ; и уменьшаем время до повтора
+	lda #50 ; autorepeat time
 	sta <BUTTONS_HOLD_TIME
 	jmp .end
-
 .no_up_down:
-	lda #0 ; время удержания кнопок равно нулю
+	lda #0 ; reset hold time
 	sta <BUTTONS_HOLD_TIME
 .end:
 	pla
@@ -40,7 +39,7 @@ read_controller:
 	pla
 	rts
 	
-	; чтение контроллера, настоящее
+	; real controller read, stores buttons to BUTTONS_TMP
 .real:
 	;php
 	lda #1
@@ -58,7 +57,7 @@ read_controller:
 	rts
 
 buttons_check:
-	; в большинстве случаев кнопки не нажаты, зачем тратить время на проверку?
+	; if buttons are not pressed at all return immediately
 	lda <BUTTONS
 	cmp #$00
 	bne .start_check
@@ -184,7 +183,7 @@ buttons_check:
 	bne .button_right_check
 	jmp .button_end
 .button_right_check:
-	; если это не последняя игра, надо блипнуть
+	; need to bleep if it's not last game
 	lda <SELECTED_GAME
 	clc
 	adc #1
@@ -207,7 +206,7 @@ buttons_check:
 	lda <SCROLL_LINES_TARGET+1
 	adc #0
 	sta <SCROLL_LINES_TARGET+1
-	; проверка на переполнение скроллинга
+	; scrolling overflow test
 	lda <SCROLL_LINES_TARGET
 	sec
 	sbc maximum_scroll
@@ -229,7 +228,7 @@ buttons_check:
 	lda <SELECTED_GAME+1
 	adc #0
 	sta <SELECTED_GAME+1
-	; проверка на переполнение выбранной игры
+	; selected game overflow test
 	lda <SELECTED_GAME
 	sec
 	sbc games_count
@@ -250,15 +249,15 @@ buttons_check:
 	jmp .button_end
 
 .button_none:
-	; это никогда не должно выполняться, ведь других кнопок нет, а что-то нажато
+	; this code shouldn't never ever be executed
 	rts
 	
 .button_end:
-	jsr set_cursor_targets ; самое время обновить цели
+	jsr set_cursor_targets ; updating cursor targets
 	jsr wait_buttons_not_pressed
 	rts
 
-; пропускаем разделители при прокрутке вверх
+; need to skip separator when scrolling upwards
 .check_separator_down:
 	lda <SELECTED_GAME+1
 	jsr select_bank
@@ -277,7 +276,7 @@ buttons_check:
 .check_separator_down_end:
 	rts
 
-; пропускаем разделители при прокрутке вниз
+; need to skip separator when scrolling downwards
 .check_separator_up:
 	lda <SELECTED_GAME+1
 	jsr select_bank
@@ -296,11 +295,10 @@ buttons_check:
 .check_separator_up_end:
 	rts
 	
-	; ждём, пока игрок не отпустит кнопку
+	; waiting for button release
 wait_buttons_not_pressed:
-	jsr waitblank ; ждём, пока дорисуется экран
+	jsr waitblank ; waiting for v-blank
 	lda <BUTTONS
-	;and #$FF ; wtf?
 	bne wait_buttons_not_pressed
 	rts
 	
@@ -313,7 +311,7 @@ konami_code_check:
 	jmp konami_code_check_end
 konami_code_check_fail:
 	ldy #0
-	lda konami_code ; на случай если неверная кнопка - начало верной последовательности
+	lda konami_code ; in case when newpressed button is first button of code
 	cmp <BUTTONS
 	bne konami_code_check_end
 	iny

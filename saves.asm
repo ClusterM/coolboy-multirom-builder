@@ -1,7 +1,7 @@
 SAVES_BANK .rs 1 ; bank with saves
-LAST_STARTED_SAVE .rs 1 ; последнее использованное сохранение
+LAST_STARTED_SAVE .rs 1 ; last used save ID
 
-	; сохраняем текущую игру в меню
+	; saving last selected game
 save_state:
 	.if USE_FLASH_WRITING=0
 	rts

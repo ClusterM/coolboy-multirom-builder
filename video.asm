@@ -1,18 +1,18 @@
-	; цели стремления курсоров
+	; cursors target coordinates
 SPRITE_0_X_TARGET .rs 1
 SPRITE_0_Y_TARGET .rs 1
 SPRITE_1_X_TARGET .rs 1
 SPRITE_1_Y_TARGET .rs 1
-	; переменные для отрисовки названий игр
+	; variables for game name drawing
 TEXT_DRAW_GAME .rs 2
 TEXT_DRAW_ROW .rs 1
-SCROLL_LINES .rs 2 ; текущая строка скроллинга	
-SCROLL_LINES_MODULO .rs 1 ; остаток от деления текущей строки на 30
+SCROLL_LINES .rs 2 ; current scroll line
+SCROLL_LINES_MODULO .rs 1 ; current scroll line % 30
 LAST_LINE_MODULO .rs 1
 LAST_LINE_GAME .rs 2
-SCROLL_FINE .rs 1 ; точное положение строки	
-SCROLL_LINES_TARGET .rs 2 ; строка, куда стремится скроллинг	
-STAR_SPAWN_TIMER .rs 1 ; таймер спауна звёзд на фоне
+SCROLL_FINE .rs 1 ; fine scroll position
+SCROLL_LINES_TARGET .rs 2 ; scrolling target
+STAR_SPAWN_TIMER .rs 1 ; stars spawn timer
 
 	; constants
 CHARS_PER_LINE .equ 32
