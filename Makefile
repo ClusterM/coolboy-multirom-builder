@@ -1,5 +1,5 @@
 NESASM=tools/nesasm.exe
-EMU=fceux.exe
+EMU=/D/Emulators/fceux/fceux.exe
 SOURCES=menu.asm
 MENU=menu.nes
 CONVERTER=tools/TilesConverter.exe

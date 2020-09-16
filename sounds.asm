@@ -16,7 +16,7 @@ reset_sound:
 	sta $4012
 	sta $4013
 	ldx #$40
-    stx $4017 ; disable APU frame IRQ
+  stx $4017 ; disable APU frame IRQ
 	rts
 	
 	; cursor moving sound
@@ -38,7 +38,7 @@ bleep:
 	sta $4003
 	rts
 
-  ; short beep sound
+  ; short bleep sound
 bleep_short:
 	lda #%00000100
 	sta $4015
@@ -98,4 +98,3 @@ start_sound_alt:
 	lda #%11000000
 	sta $4003
 	rts
-

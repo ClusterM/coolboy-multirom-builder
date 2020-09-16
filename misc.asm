@@ -34,6 +34,7 @@ random:
 	rts
 
 console_detect:
+  jsr waitblank_simple
 	ldx #0
 	ldy #0
 	; Console type detect

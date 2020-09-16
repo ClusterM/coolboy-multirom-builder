@@ -1,8 +1,6 @@
 FLASH_TYPE .rs 1 ; flash memory type
 STATE_CELL_NEXT .rs 2 ; address of cell for next state save
 
-flash_routines:
-
 flash_detect:
 	lda #$F0
 	sta $8000
@@ -11,13 +9,13 @@ flash_detect:
 	lda #$98
 	sta $8AAA
 	lda $8020
-	cmp #$51
+	cmp #'Q'
 	bne .end
 	lda $8022
-	cmp #$52
+	cmp #'R'
 	bne .end
 	lda $8024
-	cmp #$59
+	cmp #'I'
 	bne .end
 	lda $804E
 	sta <FLASH_TYPE

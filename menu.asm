@@ -90,8 +90,6 @@ Start:
 	dex
 	bne .start_wait
 	
-	jsr console_detect
-
 	lda #%00000000 ; disable PPU
 	sta $2001
 	jsr waitblank_simple
@@ -107,12 +105,20 @@ Start:
 	inx             
 	bne .loadloader
 
-	jsr banking_init ; init banks
-	jsr flash_detect ; detect flash memory type
-	jsr load_base_chr ; load CHR data
-	jsr load_base_pal ; palette
-	jsr clear_sprites ; clear all sprites data
-	jsr sprite_dma_copy ; load this empty sprites data
+  ; init banks
+	jsr banking_init
+  ; detect console type
+	jsr console_detect
+  ; detect flash memory type
+	jsr flash_detect
+  ; load CHR data
+	jsr load_base_chr
+  ; palette
+	jsr load_base_pal 
+  ; clear all sprites data
+	jsr clear_sprites
+  ; load this empty sprites data
+	jsr sprite_dma_copy 
 
 	; init variables
 	lda #0

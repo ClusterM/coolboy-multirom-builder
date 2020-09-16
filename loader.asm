@@ -67,12 +67,11 @@ loader:
 	stx $8000
 	iny
 	sty $8001
-
-	jmp loader_clean_and_start
-
-loader_end:
+  jmp .end_of_memory
+  ; dirty trick :)
+.end_of_loader:
 	.org $07E0
-loader_clean_and_start:
+.end_of_memory:
 	; clean memory
 	lda #$00
 	sta <COPY_SOURCE_ADDR
@@ -93,8 +92,7 @@ loader_clean_and_start:
 	bne .loop2	
 	; Start game!
 	jmp [$FFFC]
-	
-	.org loader_end
+	.org .end_of_loader
 
 	; CHR data loader, only one 8KB bank
 load_chr:
@@ -103,14 +101,14 @@ load_chr:
 	sta $2006
 	ldy #$00
 	ldx #$20
-load_chr_loop:
+.loop:
 	lda [COPY_SOURCE_ADDR], y
 	sta $2007
 	iny
-	bne load_chr_loop
+	bne .loop
 	inc COPY_SOURCE_ADDR+1
 	dex
-	bne load_chr_loop
+	bne .loop
 	rts
 
 load_all_chr_banks:

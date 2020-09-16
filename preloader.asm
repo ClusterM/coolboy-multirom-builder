@@ -140,4 +140,3 @@ start_game:
 	jsr reset_sound
 
 	jmp loader
-
