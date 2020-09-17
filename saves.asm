@@ -155,250 +155,250 @@ save_last_game:
 	lda #$80
 	sta COPY_DEST_ADDR+1
 	lda <LAST_STARTED_SAVE
-	sta BUFFER
-	ldx #1
-	jsr flash_write
-	pla
-	tax
-	lsr A
-	clc
-	adc <SAVES_BANK
-	sta <NROM_BANK_L
-	lda #$00
-	sta COPY_DEST_ADDR
-	txa
-	and #1
-	bne .subbankA0
-	lda #$80
-	bmi .subbank
+  sta BUFFER
+  ldx #1
+  jsr flash_write
+  pla
+  tax
+  lsr A
+  clc
+  adc <SAVES_BANK
+  sta <NROM_BANK_L
+  lda #$00
+  sta COPY_DEST_ADDR
+  txa
+  and #1
+  bne .subbankA0
+  lda #$80
+  bmi .subbank
 .subbankA0:
-	lda #$A0
+  lda #$A0
 .subbank:
-	sta COPY_DEST_ADDR+1
-	jsr flash_write_prg_ram
-	lda #0
-	sta <LAST_STARTED_SAVE
-	jsr write_state
-	jsr saving_warning_hide
-	rts
+  sta COPY_DEST_ADDR+1
+  jsr flash_write_prg_ram
+  lda #0
+  sta <LAST_STARTED_SAVE
+  jsr write_state
+  jsr saving_warning_hide
+  rts
 
 find_saves_bank:
-	lda #$00
-	sta COPY_SOURCE_ADDR
-	lda #$80
-	sta COPY_SOURCE_ADDR+1	
-	lda #$FF
-	sta <NROM_BANK_H
-	lda #($100 - 8 * 2) ; last - 8 (8 banks*16kb = sector size) * 2
+  lda #$00
+  sta COPY_SOURCE_ADDR
+  lda #$80
+  sta COPY_SOURCE_ADDR+1  
+  lda #$FF
+  sta <NROM_BANK_H
+  lda #($100 - 8 * 2) ; last - 8 (8 banks*16kb = sector size) * 2
 .bloop:
-	sta <NROM_BANK_L
-	ldx #8
-	jsr flash_read
-	ldx #0
+  sta <NROM_BANK_L
+  ldx #8
+  jsr flash_read
+  ldx #0
 .loop:
-	lda saves_signature, x
-	cmp BUFFER, x
-	bne .failed
-	inx
-	cpx #8
-	bne .loop
-	lda <NROM_BANK_L
-	jmp .end
+  lda saves_signature, x
+  cmp BUFFER, x
+  bne .failed
+  inx
+  cpx #8
+  bne .loop
+  lda <NROM_BANK_L
+  jmp .end
 .failed:
-	lda <NROM_BANK_L
-	clc
-	adc #8 ; +128kb, next sector
-	bne .bloop
+  lda <NROM_BANK_L
+  clc
+  adc #8 ; +128kb, next sector
+  bne .bloop
 .end:
-	sta <SAVES_BANK
-	rts
+  sta <SAVES_BANK
+  rts
 
 ; A - game save number
 ; Returns Y - slot number (or zero if no save)
 find_save_slot:
-	cmp #0
-	bne .savable_game
-	tay
-	rts
+  cmp #0
+  bne .savable_game
+  tay
+  rts
 .savable_game:
-	ldx <SAVES_BANK
-	stx <NROM_BANK_L ; storing saves bank number
-	ldx #$FF
-	stx <NROM_BANK_H ; at the very end of flash memory
-	ldx #$10
-	stx COPY_SOURCE_ADDR ;$8010
-	ldx #$80
-	stx COPY_SOURCE_ADDR+1
-	ldx #16
-	pha
-	jsr flash_read
-	pla
-	; searching for last save slot
-	ldy #0
-	ldx #1
+  ldx <SAVES_BANK
+  stx <NROM_BANK_L ; storing saves bank number
+  ldx #$FF
+  stx <NROM_BANK_H ; at the very end of flash memory
+  ldx #$10
+  stx COPY_SOURCE_ADDR ;$8010
+  ldx #$80
+  stx COPY_SOURCE_ADDR+1
+  ldx #16
+  pha
+  jsr flash_read
+  pla
+  ; searching for last save slot
+  ldy #0
+  ldx #1
 .save_search_loop:
-	cmp BUFFER, x
-	bne .save_search_next
-	pha ; copy X to Y, keep A
-	txa
-	tay
-	pla
+  cmp BUFFER, x
+  bne .save_search_next
+  pha ; copy X to Y, keep A
+  txa
+  tay
+  pla
 .save_search_next:
-	inx
-	cpx #16
-	bne .save_search_loop	
-	; Y contains slot number... or zero
-	rts
+  inx
+  cpx #16
+  bne .save_search_loop  
+  ; Y contains slot number... or zero
+  rts
 
 flash_write_prg_ram:
-	lda #$00
-	sta COPY_SOURCE_ADDR
-	lda #$60
-	sta COPY_SOURCE_ADDR+1
+  lda #$00
+  sta COPY_SOURCE_ADDR
+  lda #$60
+  sta COPY_SOURCE_ADDR+1
 .loop:
-	lda #$80
-	sta $A001
-	ldy #0
+  lda #$80
+  sta $A001
+  ldy #0
 .read_loop:
-	lda [COPY_SOURCE_ADDR], y
-	sta BUFFER, y
-	iny
-	bne .read_loop
-	ldx #0
-	jsr flash_write	
-	inc COPY_DEST_ADDR+1
-	inc COPY_SOURCE_ADDR+1
-	bpl .loop
-	rts
+  lda [COPY_SOURCE_ADDR], y
+  sta BUFFER, y
+  iny
+  bne .read_loop
+  ldx #0
+  jsr flash_write  
+  inc COPY_DEST_ADDR+1
+  inc COPY_SOURCE_ADDR+1
+  bpl .loop
+  rts
 
 flash_force_erase:
-	jsr error_sound
-	jsr saving_warning_show
-	lda #$F0
-	sta NROM_BANK_L
-	lda #$FF
-	sta NROM_BANK_H
-	jsr flash_erase_sector
-	jsr switch_sector
-	jsr flash_erase_sector
-	lda #0
-	sta SAVES_BANK
-	jsr saving_warning_hide
-	rts
+  jsr error_sound
+  jsr saving_warning_show
+  lda #$F0
+  sta NROM_BANK_L
+  lda #$FF
+  sta NROM_BANK_H
+  jsr flash_erase_sector
+  jsr switch_sector
+  jsr flash_erase_sector
+  lda #0
+  sta SAVES_BANK
+  jsr saving_warning_hide
+  rts
 
 flash_format_sector:
-	ldx <SAVES_BANK
-	stx <NROM_BANK_L ; storing saves bank number
-	ldx #$FF
-	stx <NROM_BANK_H ; at the very end of flash memory
-	jsr flash_erase_sector
-	ldy #8
+  ldx <SAVES_BANK
+  stx <NROM_BANK_L ; storing saves bank number
+  ldx #$FF
+  stx <NROM_BANK_H ; at the very end of flash memory
+  jsr flash_erase_sector
+  ldy #8
 .load:
-	lda saves_signature, y
-	sta BUFFER, y
-	dey
-	bpl .load
-	lda #$00
-	sta COPY_DEST_ADDR
-	lda #$80
-	sta COPY_DEST_ADDR+1	
-	ldx #8
-	jsr flash_write
-	lda #$20
-	sta <STATE_CELL_NEXT
-	lda #$80
-	sta <STATE_CELL_NEXT+1
-	rts
+  lda saves_signature, y
+  sta BUFFER, y
+  dey
+  bpl .load
+  lda #$00
+  sta COPY_DEST_ADDR
+  lda #$80
+  sta COPY_DEST_ADDR+1  
+  ldx #8
+  jsr flash_write
+  lda #$20
+  sta <STATE_CELL_NEXT
+  lda #$80
+  sta <STATE_CELL_NEXT+1
+  rts
 
 flash_cleanup:
-	lda saves_count
-	beq flash_format_sector ; no games with saves
-	; format other sector (erase, write signature)
-	; go to dest bank
-	jsr switch_sector ; dest
-	jsr flash_format_sector ; write signature
-	jsr switch_sector ; source
-	lda #0
+  lda saves_count
+  beq flash_format_sector ; no games with saves
+  ; format other sector (erase, write signature)
+  ; go to dest bank
+  jsr switch_sector ; dest
+  jsr flash_format_sector ; write signature
+  jsr switch_sector ; source
+  lda #0
 .save_id_loop:
-	cmp saves_count
-	beq .end
-	clc
-	adc #1 ; next
-	cmp <LAST_STARTED_SAVE
-	beq .save_id_loop ; skip actual save
-	jsr find_save_slot
-	cpy #0 ; if save slop is 0...
-	beq .save_id_loop ; not found, next
-	pha ; save current save id	
-	sta BUFFER
-	tya
-	pha ; save slot id
-	clc
-	adc #$10
-	sta COPY_DEST_ADDR
-	lda #$80
-	sta COPY_DEST_ADDR+1
-	jsr switch_sector ; dest
-	ldx #1
-	jsr flash_write	
-	jsr switch_sector ; source
-	pla ; load slot id
-	pha ; but still keep it in stack
-	lsr A
-	clc
-	adc <SAVES_BANK
-	sta <NROM_BANK_L
-	lda #$FF
-	sta <NROM_BANK_H
-	lda #$00
-	sta COPY_SOURCE_ADDR
-	sta COPY_DEST_ADDR
-	pla ; load slot id
-	and #1
-	bne .subbankA0
-	lda #$80
-	bmi .subbank
+  cmp saves_count
+  beq .end
+  clc
+  adc #1 ; next
+  cmp <LAST_STARTED_SAVE
+  beq .save_id_loop ; skip actual save
+  jsr find_save_slot
+  cpy #0 ; if save slop is 0...
+  beq .save_id_loop ; not found, next
+  pha ; save current save id  
+  sta BUFFER
+  tya
+  pha ; save slot id
+  clc
+  adc #$10
+  sta COPY_DEST_ADDR
+  lda #$80
+  sta COPY_DEST_ADDR+1
+  jsr switch_sector ; dest
+  ldx #1
+  jsr flash_write  
+  jsr switch_sector ; source
+  pla ; load slot id
+  pha ; but still keep it in stack
+  lsr A
+  clc
+  adc <SAVES_BANK
+  sta <NROM_BANK_L
+  lda #$FF
+  sta <NROM_BANK_H
+  lda #$00
+  sta COPY_SOURCE_ADDR
+  sta COPY_DEST_ADDR
+  pla ; load slot id
+  and #1
+  bne .subbankA0
+  lda #$80
+  bmi .subbank
 .subbankA0:
-	lda #$A0
+  lda #$A0
 .subbank:
-	sta COPY_SOURCE_ADDR+1
-	sta COPY_DEST_ADDR+1
+  sta COPY_SOURCE_ADDR+1
+  sta COPY_DEST_ADDR+1
 .copy_loop:
-	ldx #0
-	jsr flash_read ; read 256 bytes to buffer
-	jsr switch_sector ; dest sector
-	ldx #0
-	jsr flash_write ; write 256 bytes from buffer
-	jsr switch_sector ; source sector
-	inc COPY_SOURCE_ADDR+1 ; +256 of source address
-	inc COPY_DEST_ADDR+1 ; +256 of dest address
-	lda COPY_DEST_ADDR+1 ; load high byte of dest address and check it
-	cmp #$A0 ; $A0? it's end of data
-	beq .copy_end ; go to end
-	cmp #$C0 ; $C0? it's end too... 
-	bne .copy_loop ; continue copying otherwise
-.copy_end:	
-	pla ; restore save id from stack
-	jmp .save_id_loop ; repeat with next game
+  ldx #0
+  jsr flash_read ; read 256 bytes to buffer
+  jsr switch_sector ; dest sector
+  ldx #0
+  jsr flash_write ; write 256 bytes from buffer
+  jsr switch_sector ; source sector
+  inc COPY_SOURCE_ADDR+1 ; +256 of source address
+  inc COPY_DEST_ADDR+1 ; +256 of dest address
+  lda COPY_DEST_ADDR+1 ; load high byte of dest address and check it
+  cmp #$A0 ; $A0? it's end of data
+  beq .copy_end ; go to end
+  cmp #$C0 ; $C0? it's end too... 
+  bne .copy_loop ; continue copying otherwise
+.copy_end:  
+  pla ; restore save id from stack
+  jmp .save_id_loop ; repeat with next game
 .end:
-	ldx <SAVES_BANK
-	stx <NROM_BANK_L ; storing saves bank number
-	ldx #$FF
-	stx <NROM_BANK_H ; at the very end of flash memory
-	jsr flash_erase_sector ; erasing source sector
-	jsr switch_sector ; finally switching to new sector
-	rts
+  ldx <SAVES_BANK
+  stx <NROM_BANK_L ; storing saves bank number
+  ldx #$FF
+  stx <NROM_BANK_H ; at the very end of flash memory
+  jsr flash_erase_sector ; erasing source sector
+  jsr switch_sector ; finally switching to new sector
+  rts
 
 switch_sector:
-	pha
-	lda <SAVES_BANK
-	eor #8 ; 8 banks*16kb = sector size
-	sta <SAVES_BANK	
-	lda <NROM_BANK_L
-	eor #8 ; 8 banks*16kb = sector size
-	sta <NROM_BANK_L
-	pla
-	rts
+  pha
+  lda <SAVES_BANK
+  eor #8 ; 8 banks*16kb = sector size
+  sta <SAVES_BANK  
+  lda <NROM_BANK_L
+  eor #8 ; 8 banks*16kb = sector size
+  sta <NROM_BANK_L
+  pla
+  rts
 
 saves_signature:
-	.db 'C','O','O','L','S','A','V','E'	
+  .db 'C','O','O','L','S','A','V','E'  
