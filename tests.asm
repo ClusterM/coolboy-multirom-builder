@@ -25,7 +25,7 @@ do_tests:
 .do_tests_sram:
 	jsr random_init
 .sram_test_loop_bank:
-	jsr bleep_short
+	jsr beep
 	lda #$00
 	sta COPY_DEST_ADDR
 	lda #$60
@@ -69,7 +69,7 @@ do_tests:
 	sta <LOADER_CHR_COUNT	
 	
 .chr_test_loop_bank:
-	jsr bleep_short
+	jsr beep
 	lda <LOADER_CHR_COUNT
 	asl A
 	asl A

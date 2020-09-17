@@ -46,7 +46,6 @@ SELECTED_GAME .rs 2
 	.dw Start  ; reset vector
 	.dw IRQ    ; interrupts
 
-	.bank 15   ; last bank
 	.org $E000
 
 Start:
@@ -120,16 +119,6 @@ Start:
   ; load this empty sprites data
 	jsr sprite_dma_copy 
 
-	; init variables
-	lda #0
-	sta <SCROLL_LINES_TARGET
-	sta <SCROLL_LINES_TARGET+1
-	sta <SELECTED_GAME
-	sta <SELECTED_GAME+1	
-	sta <SCROLL_FINE
-	sta <KONAMI_CODE_STATE
-	sta <LAST_STARTED_SAVE
-	
 	jsr read_controller ; read buttons
 	jsr load_state ; loading saved cursor position and other data
 

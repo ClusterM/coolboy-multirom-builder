@@ -130,13 +130,8 @@ start_game:
 	sta <COPY_SOURCE_ADDR+1
 	jsr flash_load_prg_ram	
 .no_save:
-
-	ldx #15
-.start_game_wait_sound:
-	jsr waitblank_simple
-	dex
-	bne .start_game_wait_sound
-
+  ; wait for sound end and reset sound registers
+  jsr wait_sound_end
 	jsr reset_sound
-
+  ; start loader stored into RAM
 	jmp loader

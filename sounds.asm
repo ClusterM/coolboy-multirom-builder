@@ -1,3 +1,101 @@
+	; cursor moving sound
+bleep:
+  ; enable channel
+	lda #%00000001
+	sta $4015
+	; square 1
+	lda #%10000111
+	sta $4000
+  ; sweep 	
+	lda #%10001001
+	sta $4001
+	lda #%11110000
+  ; timer
+	sta $4002
+  ; length counter and timer
+	lda #%00001000
+	sta $4003
+	rts
+
+  ; beep sound
+beep:
+  ; enable channel
+	lda #%00000100
+	sta $4015
+  ; triangle
+	lda #%01000000
+	sta $4008
+  ; timer
+	lda #%1000000
+	sta $400A
+  ; length counter and timer
+	lda #%00001000
+	sta $400B
+	rts
+
+  ; error sound
+error_sound:
+  ; enable channel
+	lda #%00000100
+	sta $4015
+  ; triangle
+	lda #%01001111
+	sta $4008
+  ; timer
+	lda #%00000000
+	sta $400A
+  ; length counter and timer
+	lda #%11110011
+	sta $400B
+	rts
+	
+	; game start sound
+start_sound:
+	lda <KONAMI_CODE_STATE
+	cmp konami_code_length
+	beq start_sound_alt
+
+  ;enable channel
+	lda #%00000001
+	sta $4015
+	;square 1
+	lda #%00011111
+	sta $4000
+  ; sweep 
+	lda #%10011010
+	sta $4001
+  ; timer
+	lda #%11111111
+	sta $4002
+  ; length counter and timer
+	lda #%10010000
+	sta $4003
+	rts
+	
+	; Konami Code sound
+start_sound_alt:
+  ; enable channel
+	lda #%00000001
+	sta $4015
+	; square 1
+	lda #%10011111  
+	sta $4000
+  ; sweep 
+	lda #%10000011
+	sta $4001
+  ; timer
+	lda #%00100000
+	sta $4002
+  ; length counter and timer
+	lda #%11000000
+	sta $4003
+	rts
+
+wait_sound_end:
+  lda $4015
+  bne wait_sound_end
+  rts
+
 reset_sound:
 	lda #0
 	sta $4000
@@ -19,82 +117,3 @@ reset_sound:
   stx $4017 ; disable APU frame IRQ
 	rts
 	
-	; cursor moving sound
-bleep:
-	;rts ; выключить звук
-	lda #%00000001
-	sta $4015
-	;square 1
-	;lda #%10011111  ; 50% duty, max volume
-	lda #$87
-	sta $4000
-	;lda #%10011010  ; sweep 
-	lda #$89
-	sta $4001
-	;lda #40
-	lda #$F0
-	sta $4002
-	lda #%00000000
-	sta $4003
-	rts
-
-  ; short bleep sound
-bleep_short:
-	lda #%00000100
-	sta $4015
-	lda #$40
-	sta $4008
-	lda #$80
-	sta $400A
-	lda #$00
-	sta $400B
-	rts
-
-  ; error sound
-error_sound:
-	lda #%00000100
-	sta $4015
-	lda #$4F
-	sta $4008
-	lda #$00
-	sta $400A
-	lda #$F3
-	sta $400B
-	rts
-	
-	; game start sound
-start_sound:
-	lda <KONAMI_CODE_STATE
-	cmp konami_code_length
-	beq start_sound_alt
-
-	lda #%00000001
-	sta $4015 ;enable channel(s)	
-	;square 1
-	lda #%00111111
-	sta $4000
-	;lda #%10100010  ; sweep 
-	lda #$9A
-	sta $4001
-	;lda #20
-	lda #$FF
-	sta $4002
-	;lda #%11111000
-	lda #$00
-	sta $4003
-	rts
-	
-	; Konami Code sound
-start_sound_alt:
-	lda #%00000001
-	sta $4015 ;enable channel(s)	
-	;square 1
-	lda #%10011111  ; 50% duty, max volume
-	sta $4000
-	lda #%10000011  ; sweep 
-	sta $4001
-	lda #20
-	sta $4002
-	lda #%11000000
-	sta $4003
-	rts

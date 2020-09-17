@@ -851,23 +851,7 @@ stars:
 .move_end:
 	rts
 
-saving_warning_show:
-	lda #%00000000 ; disable PPU
-	sta $2000
-	sta $2001
-	jsr waitblank_simple
-	jsr clear_screen
-	lda #$21
-	sta $2006
-	lda #$C0
-	sta $2006
-	ldy #0
-.print_warning:
-	lda saving_text, y
-	sta $2007
-	iny
-	cmp #0 ; stop at zero
-	bne .print_warning
+load_text_palette:
 	lda #$23
 	sta $2006
 	lda #$C8
@@ -878,6 +862,36 @@ saving_warning_show:
 	sta $2007
 	dey
 	bne .print_warning_palette
+  rts
+
+  ; print null-terminated string from [COPY_SOURCE_ADDR]
+print_text:
+	ldy #0
+.loop:
+  lda [COPY_SOURCE_ADDR], y
+  sta $2007
+  iny
+  cmp #0 ; stop at zero
+  bne .loop
+  rts
+
+saving_warning_show:
+  ; disable PPU
+	lda #%00000000
+	sta $2000
+	sta $2001
+	jsr waitblank_simple
+	jsr clear_screen
+	lda #$21
+	sta $2006
+	lda #$C0
+	sta $2006
+  lda #LOW(saving_text)
+  sta COPY_SOURCE_ADDR
+  lda #HIGH(saving_text)
+  sta COPY_SOURCE_ADDR+1
+  jsr print_text
+  jsr load_text_palette
 	jsr waitblank_simple
 	bit $2002
 	lda #0

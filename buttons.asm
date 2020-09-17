@@ -56,6 +56,7 @@ read_controller:
 	bne .read_button
 	rts
 
+  ; check buttons state and do some action
 buttons_check:
 	; if buttons are not pressed at all return immediately
 	lda <BUTTONS
