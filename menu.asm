@@ -93,18 +93,19 @@ Start:
   sta $2001
   jsr waitblank_simple
 
+  ; loading loader and other RAM routines
   ldx #$00
-.loadloader:
-  lda loader+$C000, x ; loading loader and other RAM routines
-  sta loader, x
-  lda loader+$C100, x
-  sta loader+$100, x
-  lda loader+$C200, x
-  sta loader+$200, x
+.load_ram_routines:
+  lda ram_routines+$C000, x
+  sta ram_routines, x
+  lda ram_routines+$C100, x
+  sta ram_routines+$100, x
+  lda ram_routines+$C200, x
+  sta ram_routines+$200, x
   inx             
-  bne .loadloader
+  bne .load_ram_routines
 
-  ; init banks
+  ; init banks and other cart stuff
   jsr banking_init
   ; detect console type
   jsr console_detect
@@ -184,6 +185,7 @@ Start:
   cmp <BUTTONS
   bne .skip_build_info  
   ; build and hardware info
+  jsr detect_chr_ram_size
   jmp show_build_info
 .skip_build_info:
   ldx games_count
@@ -340,5 +342,6 @@ tilepal:
   ; routines to be executed from RAM
   .bank 14
   .org $0500 ; actually it's $C500 in cartridge memory
-  .include "loader.asm"
+ram_routines:
   .include "flash.asm"
+  .include "loader.asm"

@@ -134,7 +134,7 @@ load_all_chr_banks:
 	lda <LOADER_CHR_START_S
 	sta <COPY_SOURCE_ADDR+1
 .loop:
-	jsr select_16k_bank ; selecting source and target banks
+	jsr select_prg_chr_banks ; selecting source and target banks
 	jsr load_chr ; loading CHR data from COPY_SOURCE_ADDR to CHR RAM
 	lda <COPY_SOURCE_ADDR+1 ; increamenting source address
 	and #$A0 ; or from $A000 to $8000
@@ -167,8 +167,9 @@ load_all_chr_banks:
 	rts
 
 	; select 16KB NROM bank from the whole flash memory
-	; $C000-$FFFF is a mirror for $8000-$BFFF 
-select_16k_bank:
+  ; and 8KB CHR bank from the whole CHR RAM memory
+	; $C000-$FFFF is a mirror for $8000-$BFFF
+select_prg_chr_banks:
 	lda #$00
 	sta $A001 ; PRG-RAM protect
 	;<NROM_BANK_L (1-8)	<NROM_BANK_H (9-11)  <CHR_BANK8 (7-3)

@@ -13,6 +13,8 @@ LAST_LINE_GAME .rs 2
 SCROLL_FINE .rs 1 ; fine scroll position
 SCROLL_LINES_TARGET .rs 2 ; scrolling target
 STAR_SPAWN_TIMER .rs 1 ; stars spawn timer
+  ; for build info
+CHR_RAM_SIZE .rs 1 ; CHR RAM size 8*2^xKB
 
   ; constants
 CHARS_PER_LINE .equ 32
@@ -159,7 +161,7 @@ scroll_line_up:
 load_base_chr:
   ; loading CHR
   lda #$06
-  jsr select_bank
+  jsr select_prg_bank
   lda #LOW(chr_data)
   sta COPY_SOURCE_ADDR
   lda #HIGH(chr_data)
@@ -247,7 +249,7 @@ sprite_dma_copy:
   ; loading header (image on the top), first part
 draw_header1:
   lda #$06
-  jsr select_bank
+  jsr select_prg_bank
   bit $2002
   lda #$20
   sta $2006
@@ -266,7 +268,7 @@ draw_header1:
   ; loading header (image on the top), second part
 draw_header2:
   lda #$06
-  jsr select_bank
+  jsr select_prg_bank
   bit $2002
   lda #$20
   sta $2006
@@ -298,7 +300,7 @@ draw_header2:
   ; loading footer (image on the bottom), first part
 draw_footer1:
   lda #$06
-  jsr select_bank
+  jsr select_prg_bank
   ldx #0
   ldy #$40
 .loop:
@@ -312,7 +314,7 @@ draw_footer1:
   ; loading footer (image on the bottom), second part
 draw_footer2:
   lda #$06
-  jsr select_bank
+  jsr select_prg_bank
   ldx #0
   ldy #$40
 .loop:
@@ -448,7 +450,7 @@ print_name:
   jmp .end
 .print_text_line:
   lda <TEXT_DRAW_GAME+1
-  jsr select_bank
+  jsr select_prg_bank
   lda #LOW(game_names)
   clc
   adc <TEXT_DRAW_GAME
@@ -719,7 +721,7 @@ set_cursor_targets:
   sta <SPRITE_0_X_TARGET  
   ; right cursor, X
   lda <SELECTED_GAME+1
-  jsr select_bank
+  jsr select_prg_bank
   ldx <SELECTED_GAME
   ldy loader_data_cursor_pos, x
   dey
@@ -839,7 +841,7 @@ stars:
   jsr random ; random X
   sta SPRITES+3, y
   jsr random ; random attributes
-  and #%00000011 ; palette - lowest tho bits
+  and #%00000011 ; palette - lowest two bits
   ora #%00100000 ; priority bit
   sta SPRITES+2, y
 .move_next1:
@@ -875,6 +877,7 @@ print_text:
   bne .loop
   rts
 
+  ; show "saving... keep power on" message
 saving_warning_show:
   ; disable PPU
   lda #%00000000
@@ -886,9 +889,9 @@ saving_warning_show:
   sta $2006
   lda #$C0
   sta $2006
-  lda #LOW(saving_text)
+  lda #LOW(string_saving)
   sta COPY_SOURCE_ADDR
-  lda #HIGH(saving_text)
+  lda #HIGH(string_saving)
   sta COPY_SOURCE_ADDR+1
   jsr print_text
   jsr load_text_palette
@@ -904,10 +907,85 @@ saving_warning_show:
   jsr waitblank_simple
   rts
 
+  ; hide this message (clear screen)
 saving_warning_hide:
   lda #%00000000 ; disable PPU
   sta $2000
   sta $2001
   jsr waitblank_simple
   jsr clear_screen
+  rts
+
+detect_chr_ram_size:
+  ; disable PPU
+  lda #%00000000
+  sta $2000
+  sta $2001
+  jsr waitblank_simple
+  jsr enable_chr_write
+  lda #$00
+  sta $2006
+  sta $2006
+  ; store $AA to zero bank
+  sta <CHR_RAM_SIZE
+  lda #$AA
+  sta $2007
+  ; calculate bank number
+.next_size:
+  lda #1
+  ldx CHR_RAM_SIZE
+  ; shift 1 to the left CHR_RAM_SIZE times
+.shift_loop:
+  dex
+  bmi .shift_done
+  asl A
+  beq .end ; overflow check
+  jmp .shift_loop
+.shift_done:
+  ; select this bank
+  jsr select_chr_bank
+  ; store $AA
+  ldx #$00
+  stx $2006
+  stx $2006
+  lda #$AA
+  sta $2007
+  ; check for $AA
+  stx $2006
+  stx $2006
+  ldy $2007 ; dump read
+  cmp $2007
+  bne .end ; check failed
+  ; store $55
+  stx $2006
+  stx $2006
+  lda #$55
+  ; check for $55
+  sta $2007
+  stx $2006
+  stx $2006
+  ldy $2007 ; dump read
+  cmp $2007
+  bne .end ; check failed
+  ; select zero bank
+  lda #0
+  jsr select_chr_bank
+  ; check that $AA is not overwrited
+  stx $2006
+  stx $2006
+  lda #$AA
+  ldy $2007 ; dump read
+  cmp $2007
+  bne .end ; check failed
+  ; OK! Let's check next bank
+  inc <CHR_RAM_SIZE
+  jmp .next_size
+.end:
+  lda #0
+  jsr select_chr_bank
+  lda #0
+  sta $2006
+  sta $2006
+  sta $2007
+  jsr disable_chr_write
   rts

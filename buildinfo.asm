@@ -1,182 +1,177 @@
+PRG_RAM_PRESENT .rs 1 ; PRG RAM present flag
+
   ; build info
 show_build_info:
+  jsr prg_ram_detect
+
   bit $2002
   lda #$21
   sta $2006
-  lda #$44
+  lda #$24
   sta $2006
   ; filename
-  lda #LOW(build_info0)
+  lda #LOW(string_file)
   sta <COPY_SOURCE_ADDR
-  lda #HIGH(build_info0)
+  lda #HIGH(string_file)
   sta <COPY_SOURCE_ADDR+1
   jsr print_text
 
   lda #$21
   sta $2006
-  lda #$84
+  lda #$64
   sta $2006
   ; build date
-  lda #LOW(build_info2)
+  lda #LOW(string_build_date)
   sta <COPY_SOURCE_ADDR
-  lda #HIGH(build_info2)
+  lda #HIGH(string_build_date)
   sta <COPY_SOURCE_ADDR+1
   jsr print_text
   
   lda #$21
   sta $2006
-  lda #$C4
+  lda #$A4
   sta $2006
   ; build time
-  lda #LOW(build_info3)
+  lda #LOW(string_build_time)
   sta <COPY_SOURCE_ADDR
-  lda #HIGH(build_info3)
+  lda #HIGH(string_build_time)
   sta <COPY_SOURCE_ADDR+1
   jsr print_text
 
-  lda #$22
+  lda #$21
   sta $2006
-  lda #$04
+  lda #$E4
   sta $2006
   ; console region/type
-  lda #LOW(console_type_text)
+  lda #LOW(string_console_type)
   sta <COPY_SOURCE_ADDR
-  lda #HIGH(console_type_text)
+  lda #HIGH(string_console_type)
   sta <COPY_SOURCE_ADDR+1
   jsr print_text
   
   lda <CONSOLE_TYPE
   and #$08
   beq .console_type_no_NEW
-  lda #LOW(console_type_NEW)
+  lda #LOW(string_new)
   sta <COPY_SOURCE_ADDR
-  lda #HIGH(console_type_NEW)
+  lda #HIGH(string_new)
   sta <COPY_SOURCE_ADDR+1
   jsr print_text
 .console_type_no_NEW:
   lda <CONSOLE_TYPE
   and #$01
   beq .console_type_no_NTSC
-  lda #LOW(console_type_NTSC)
+  lda #LOW(string_ntsc)
   sta <COPY_SOURCE_ADDR
-  lda #HIGH(console_type_NTSC)
+  lda #HIGH(string_ntsc)
   sta <COPY_SOURCE_ADDR+1
   jsr print_text
 .console_type_no_NTSC:
   lda <CONSOLE_TYPE
   and #$02
   beq .console_type_no_PAL
-  lda #LOW(console_type_PAL)
+  lda #LOW(string_pal)
   sta <COPY_SOURCE_ADDR
-  lda #HIGH(console_type_PAL)
+  lda #HIGH(string_pal)
   sta <COPY_SOURCE_ADDR+1
   jsr print_text
 .console_type_no_PAL:
   lda <CONSOLE_TYPE
   and #$04
   beq .console_type_no_DENDY
-  lda #LOW(console_type_DENDY)
+  lda #LOW(string_dendy)
   sta <COPY_SOURCE_ADDR
-  lda #HIGH(console_type_DENDY)
+  lda #HIGH(string_dendy)
   sta <COPY_SOURCE_ADDR+1
   jsr print_text
 .console_type_no_DENDY:
 
+  ; flash memory type and size
 print_flash_type:
   lda #$22
   sta $2006
-  lda #$44
+  lda #$24
   sta $2006
-  ; flash memory type and size
-  ldy #0
-.next_char:
-  lda flash_type, y
-  sta $2007
-  iny
-  cmp #0
-  bne .next_char
+  lda #LOW(string_flash)
+  sta <COPY_SOURCE_ADDR
+  lda #HIGH(string_flash)
+  sta <COPY_SOURCE_ADDR+1
+  jsr print_text
+
+  ; is it writable?
   lda <FLASH_TYPE
   bne .writable
-  
-  ldy #0
-.ro_next_char:
-  lda flash_type_read_only, y
-  sta $2007
-  iny
-  cmp #0
-  bne .ro_next_char  
-  jmp .end
+  lda #LOW(string_read_only)
+  sta <COPY_SOURCE_ADDR
+  lda #HIGH(string_read_only)
+  sta <COPY_SOURCE_ADDR+1
+  jsr print_text
+  jmp print_chr_size
 
+  ; yes, it's writable
 .writable:
-  ldy #0
-.writable_next_char:
-  lda flash_type_writable, y
-  sta $2007
-  iny
-  cmp #0
-  bne .writable_next_char
-  
-  lda <FLASH_TYPE
-  cmp #21
-  bne .not_2mb
-  ldy #0
-.2mb_next_char:
-  lda flash_type_2mb, y
-  sta $2007
-  iny
-  cmp #0
-  bne .2mb_next_char
-.not_2mb:
+  lda #LOW(string_writable)
+  sta <COPY_SOURCE_ADDR
+  lda #HIGH(string_writable)
+  sta <COPY_SOURCE_ADDR+1
+  jsr print_text
 
+  ; how many memory?
   lda <FLASH_TYPE
-  cmp #22
-  bne .not_4mb
-  ldy #0
-.4mb_next_char:
-  lda flash_type_4mb, y
-  sta $2007
-  iny
-  cmp #0
-  bne .4mb_next_char
-.not_4mb:
+  sec
+  sbc #20
+  asl A
+  tay
+  lda flash_sizes, y
+  sta <COPY_SOURCE_ADDR
+  lda flash_sizes+1, y
+  sta <COPY_SOURCE_ADDR+1
+  jsr print_text
 
-  lda <FLASH_TYPE
-  cmp #23
-  bne .not_8mb
-  ldy #0
-.8mb_next_char:
-  lda flash_type_8mb, y
-  sta $2007
-  iny
-  cmp #0
-  bne .8mb_next_char
-.not_8mb:
+print_chr_size:
+  lda #$22
+  sta $2006
+  lda #$64
+  sta $2006
+  lda #LOW(string_chr_ram)
+  sta <COPY_SOURCE_ADDR
+  lda #HIGH(string_chr_ram)
+  sta <COPY_SOURCE_ADDR+1
+  jsr print_text
+  lda <CHR_RAM_SIZE
+  asl A
+  tay
+  lda chr_ram_sizes, y
+  sta <COPY_SOURCE_ADDR
+  lda chr_ram_sizes+1, y
+  sta <COPY_SOURCE_ADDR+1
+  jsr print_text
 
-  lda <FLASH_TYPE
-  cmp #24
-  bne .not_16mb
-  ldy #0
-.16mb_next_char:
-  lda flash_type_16mb, y
-  sta $2007
-  iny
-  cmp #0
-  bne .16mb_next_char
-.not_16mb:
-
-  lda <FLASH_TYPE
-  cmp #25
-  bne .not_32mb
-  ldy #0
-.32mb_next_char:
-  lda flash_type_32mb, y
-  sta $2007
-  iny
-  cmp #0
-  bne .32mb_next_char
-.not_32mb:
-
+print_prg_ram:
+  lda #$22
+  sta $2006
+  lda #$A4
+  sta $2006
+  lda #LOW(string_prg_ram)
+  sta <COPY_SOURCE_ADDR
+  lda #HIGH(string_prg_ram)
+  sta <COPY_SOURCE_ADDR+1
+  jsr print_text
+  lda PRG_RAM_PRESENT
+  beq .not_present
+  lda #LOW(string_present)
+  sta <COPY_SOURCE_ADDR
+  lda #HIGH(string_present)
+  sta <COPY_SOURCE_ADDR+1
+  jmp .end
+.not_present:
+  lda #LOW(string_not_available)
+  sta <COPY_SOURCE_ADDR
+  lda #HIGH(string_not_available)
+  sta <COPY_SOURCE_ADDR+1
 .end:
+  jsr print_text
+
   lda #$23
   sta $2006
   lda #$00
@@ -206,3 +201,21 @@ show_build_info_infin:
   lda #%00011110
   sta $2001
   jmp show_build_info_infin
+
+prg_ram_detect:
+  lda #0
+  sta PRG_RAM_PRESENT
+  jsr enable_prg_ram
+  lda #$AA
+  sta $7000
+  cmp $7000
+  bne .end
+  lda #$55
+  sta $7000
+  cmp $7000
+  bne .end
+  lda #1
+  sta PRG_RAM_PRESENT 
+.end:
+  jsr disable_prg_ram
+  rts

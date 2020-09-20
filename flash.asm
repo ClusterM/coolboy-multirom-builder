@@ -2,12 +2,12 @@ FLASH_TYPE .rs 1 ; flash memory type
 STATE_CELL_NEXT .rs 2 ; address of cell for next state save
 
 flash_detect:
-  lda #$F0
-  sta $8000
   lda #0
   sta <FLASH_TYPE
+  ; enter flash CFI mode
   lda #$98
   sta $8AAA
+  ; check for CFI signature
   lda $8020
   cmp #'Q'
   bne .end
@@ -15,7 +15,7 @@ flash_detect:
   cmp #'R'
   bne .end
   lda $8024
-  cmp #'I'
+  cmp #'Y'
   bne .end
   lda $804E
   sta <FLASH_TYPE
@@ -26,7 +26,7 @@ flash_detect:
 
   ; NROM_BANK_L, NROM_BANK_H - bank
 flash_erase_sector:
-  jsr select_16k_bank
+  jsr select_prg_chr_banks
   lda #$F0
   sta $8000
   lda #$AA
@@ -51,7 +51,7 @@ flash_erase_sector:
   ; COPY_DEST_ADDR - dest. address
   ; x - count (bytes)
 flash_write:
-  jsr select_16k_bank
+  jsr select_prg_chr_banks
   lda #$80 ; PRG-RAM unprotect
   sta $A001
   lda #$F0 ; reset flash
@@ -82,7 +82,7 @@ flash_write:
   ; COPY_SOURCE_ADDR - source address
   ; x - count (bytes)
 flash_read:
-  jsr select_16k_bank
+  jsr select_prg_chr_banks
   ldy #$00
 .loop:
   lda [COPY_SOURCE_ADDR], y
@@ -149,7 +149,7 @@ flash_load_prg_ram:
   ; NROM_BANK_L, NROM_BANK_H - bank
   ; STATE_CELL_NEXT - start address, result
 flash_find_empty_cell:
-  jsr select_16k_bank
+  jsr select_prg_chr_banks
   lda #0
   ldx #0
 .prep_loop:
@@ -158,7 +158,7 @@ flash_find_empty_cell:
   adc #8
   inx
   bne .prep_loop  
-  jsr select_16k_bank
+  jsr select_prg_chr_banks
   lda #$80
   sta <STATE_CELL_NEXT+1
   lda #$00
