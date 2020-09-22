@@ -109,8 +109,6 @@ Start:
   jsr banking_init
   ; detect console type
   jsr console_detect
-  ; detect flash memory type
-  jsr flash_detect
   ; load CHR data
   jsr load_base_chr
   ; palette
@@ -185,7 +183,6 @@ Start:
   cmp <BUTTONS
   bne .skip_build_info  
   ; build and hardware info
-  jsr detect_chr_ram_size
   jmp show_build_info
 .skip_build_info:
   ldx games_count
@@ -223,6 +220,9 @@ Start:
   lda #%00000111
   cmp <BUTTONS
   bne .not_tests
+  ; lockout to disable COOLBOY registers
+  lda #$80
+  sta COOLBOY_REG_3
   jmp do_tests
 .not_tests:
 

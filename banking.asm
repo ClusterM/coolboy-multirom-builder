@@ -1,3 +1,5 @@
+PRG_RAM_BANKS .equ 1 ; number of PRG RAM banks
+
 banking_init:
   ; CHR at $0000-$07FF
   lda #$00
@@ -110,3 +112,7 @@ select_chr_bank:
   ora #%00000111
   sta $8001
 	rts	
+
+  ; COOLBOY has not any PRG RAM banking
+select_prg_ram_bank:
+  rts

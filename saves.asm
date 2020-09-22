@@ -6,6 +6,8 @@ save_state:
 	.if USE_FLASH_WRITING=0
 	rts
 	.endif
+  ; detect flash memory type
+  jsr flash_detect
 	lda <FLASH_TYPE
 	beq .end
 	lda <SAVES_BANK
@@ -54,6 +56,8 @@ load_state:
 	.if USE_FLASH_WRITING=0
 	rts
 	.endif
+  ; detect flash memory type
+  jsr flash_detect
 	lda <FLASH_TYPE
 	beq .end
 	lda BUTTONS
