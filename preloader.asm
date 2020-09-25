@@ -49,7 +49,7 @@ start_game:
   sta <LOADER_MIRRORING
   lda loader_data_game_save, x
   sta <LAST_STARTED_SAVE
-  lda loader_data_game_type, x
+  lda loader_data_game_flags, x
   and <CONSOLE_TYPE
   beq .compatible_console
 

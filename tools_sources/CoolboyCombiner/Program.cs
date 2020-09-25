@@ -424,7 +424,7 @@ namespace Cluster.Famicom
                     regs["chr_size_target"] = new List<String>();
                     regs["mirroring"] = new List<String>();
                     regs["game_save"] = new List<String>();
-                    regs["game_type"] = new List<String>();
+                    regs["game_flags"] = new List<String>();
                     regs["cursor_pos"] = new List<String>();
 
                     int c = 0;
@@ -490,7 +490,7 @@ namespace Cluster.Famicom
                             ((game.ChrSize <= 128 * 1024) ? (byte)(128 * 1024 / 0x2000) : (byte)(256 * 1024 / 0x2000))));
                         regs["mirroring"].Add(string.Format("${0:X2}", game.Mirroring == NesFile.MirroringType.Horizontal ? 0x01 : 0x00));
                         regs["game_save"].Add(string.Format("${0:X2}", !game.Battery ? 0 : game.SaveId));
-                        regs["game_type"].Add(string.Format("${0:X2}", (byte)game.Flags));
+                        regs["game_flags"].Add(string.Format("${0:X2}", (byte)game.Flags));
                         regs["cursor_pos"].Add(string.Format("${0:X2}", game.ToString().Length));
                     }
 
