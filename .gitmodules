@@ -1,0 +1,3 @@
+[submodule "tools_sources/NesTiler"]
+	path = tools_sources/NesTiler
+	url = https://github.com/ClusterM/NesTiler.git
