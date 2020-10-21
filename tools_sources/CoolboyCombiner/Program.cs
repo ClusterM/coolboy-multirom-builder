@@ -1,4 +1,7 @@
 ﻿using com.clusterrr.Famicom;
+using com.clusterrr.Famicom.Containers;
+using com.clusterrr.Famicom.Containers.HeaderFixer;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -28,6 +31,7 @@ namespace Cluster.Famicom
             bool needShowHelp = false;
 
             string command = null;
+            string optionSymbolsFile = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"symbols.json");
             string optionGames = null;
             string optionAsm = null;
             string optionOffsets = null;
@@ -187,6 +191,11 @@ namespace Cluster.Famicom
                     var regs = new Dictionary<string, List<String>>();
                     var games = new List<Game>();
                     var namesIncluded = new List<String>();
+
+                    // Loading symbols table
+                    var symbolsJson = File.ReadAllText(optionSymbolsFile);
+                    var symbols = JsonConvert.DeserializeObject<Dictionary<char, byte>>(symbolsJson);
+                    var symbols2 = symbols.Where(kv => kv.Key.ToString().ToUpper() == kv.Key.ToString()).ToDictionary(kv => kv.Key, kv => kv.Value);
 
                     // Reserved for loader
                     for (int a = loaderOffset; a < loaderOffset + loaderSize; a++)
@@ -366,7 +375,7 @@ namespace Cluster.Famicom
                     int maxChrSize = 0;
                     namesIncluded.Add(string.Format("{0,-33} {1,-10} {2,-10} {3,-10} {4,0}", "Game name", "Mapper", "Save ID", "Size", "Total size"));
                     namesIncluded.Add(string.Format("{0,-33} {1,-10} {2,-10} {3,-10} {4,0}", "------------", "-------", "-------", "-------", "--------------"));
-                    var mapperStats = new Dictionary<byte, int>();
+                    var mapperStats = new Dictionary<ushort, int>();
                     foreach (var game in games)
                     {
                         if (!game.ToString().StartsWith("?"))
@@ -558,7 +567,7 @@ namespace Cluster.Famicom
                         }
                         asmResult.AppendLine("; " + game.ToString());
                         asmResult.AppendLine("game_name_" + c + ":");
-                        var name = StringToTiles(string.Format(/*"{0}. "+*/"{1}", c + 1, game.ToString()));
+                        var name = StringToTiles(string.Format(/*"{0}. "+*/"{1}", c + 1, game.ToString()), symbols);
                         var asm = BytesToAsm(name);
                         asmResult.Append(asm);
                         c++;
@@ -585,74 +594,74 @@ namespace Cluster.Famicom
                     asmResult.AppendLine();
                     asmResult.AppendLine();
                     asmResult.AppendLine("string_file:");
-                    asmResult.Append(BytesToAsm(StringToTiles("FILE: " + Path.GetFileName(optionGames))));
+                    asmResult.Append(BytesToAsm(StringToTiles("FILE: " + Path.GetFileName(optionGames), symbols)));
                     asmResult.AppendLine("string_build_date:");
-                    asmResult.Append(BytesToAsm(StringToTiles("BUILD DATE: " + DateTime.Now.ToString("yyyy-MM-dd"))));
+                    asmResult.Append(BytesToAsm(StringToTiles("BUILD DATE: " + DateTime.Now.ToString("yyyy-MM-dd"), symbols)));
                     asmResult.AppendLine("string_build_time:");
-                    asmResult.Append(BytesToAsm(StringToTiles("BUILD TIME: " + DateTime.Now.ToString("HH:mm:ss"))));
+                    asmResult.Append(BytesToAsm(StringToTiles("BUILD TIME: " + DateTime.Now.ToString("HH:mm:ss"), symbols)));
                     asmResult.AppendLine("string_console_type:");
-                    asmResult.Append(BytesToAsm(StringToTiles("CONSOLE TYPE:")));
+                    asmResult.Append(BytesToAsm(StringToTiles("CONSOLE TYPE:", symbols)));
                     asmResult.AppendLine("string_ntsc:");
-                    asmResult.Append(BytesToAsm(StringToTiles("NTSC")));
+                    asmResult.Append(BytesToAsm(StringToTiles("NTSC", symbols)));
                     asmResult.AppendLine("string_pal:");
-                    asmResult.Append(BytesToAsm(StringToTiles("PAL")));
+                    asmResult.Append(BytesToAsm(StringToTiles("PAL", symbols)));
                     asmResult.AppendLine("string_dendy:");
-                    asmResult.Append(BytesToAsm(StringToTiles("DENDY")));
+                    asmResult.Append(BytesToAsm(StringToTiles("DENDY", symbols)));
                     asmResult.AppendLine("string_new:");
-                    asmResult.Append(BytesToAsm(StringToTiles("NEW")));
+                    asmResult.Append(BytesToAsm(StringToTiles("NEW", symbols)));
                     asmResult.AppendLine("string_flash:");
-                    asmResult.Append(BytesToAsm(StringToTiles("FLASH:")));
+                    asmResult.Append(BytesToAsm(StringToTiles("FLASH:", symbols)));
                     asmResult.AppendLine("string_read_only:");
-                    asmResult.Append(BytesToAsm(StringToTiles("READ ONLY")));
+                    asmResult.Append(BytesToAsm(StringToTiles("READ ONLY", symbols)));
                     asmResult.AppendLine("string_writable:");
-                    asmResult.Append(BytesToAsm(StringToTiles("WRITABLE")));
+                    asmResult.Append(BytesToAsm(StringToTiles("WRITABLE", symbols)));
                     asmResult.AppendLine("flash_sizes:");
                     for (int i = 0; i <= 8; i++)
                         asmResult.AppendLine($"  .dw string_{1 << i}mb");
                     for (int i = 0; i <= 8; i++)
                     {
                         asmResult.AppendLine($"string_{1 << i}mb:");
-                        asmResult.Append(BytesToAsm(StringToTiles($"{1 << i}MB")));
+                        asmResult.Append(BytesToAsm(StringToTiles($"{1 << i}MB", symbols)));
                     }
                     asmResult.AppendLine("string_chr_ram:");
-                    asmResult.Append(BytesToAsm(StringToTiles("CHR RAM:")));
+                    asmResult.Append(BytesToAsm(StringToTiles("CHR RAM:", symbols)));
                     asmResult.AppendLine("chr_ram_sizes:");
                     for (int i = 0; i <= 8; i++)
                         asmResult.AppendLine($"  .dw string_{8 * (1 << i)}kb");
                     for (int i = 0; i <= 8; i++)
                     {
                         asmResult.AppendLine($"string_{8 * (1 << i)}kb:");
-                        asmResult.Append(BytesToAsm(StringToTiles($"{8 * (1 << i)}KB")));
+                        asmResult.Append(BytesToAsm(StringToTiles($"{8 * (1 << i)}KB", symbols)));
                     }
                     asmResult.AppendLine("string_prg_ram:");
-                    asmResult.Append(BytesToAsm(StringToTiles("PRG RAM:")));
+                    asmResult.Append(BytesToAsm(StringToTiles("PRG RAM:", symbols)));
                     asmResult.AppendLine("string_present:");
-                    asmResult.Append(BytesToAsm(StringToTiles("PRESENT")));
+                    asmResult.Append(BytesToAsm(StringToTiles("PRESENT", symbols)));
                     asmResult.AppendLine("string_not_available:");
-                    asmResult.Append(BytesToAsm(StringToTiles("NOT AVAILABLE")));
+                    asmResult.Append(BytesToAsm(StringToTiles("NOT AVAILABLE", symbols)));
                     asmResult.AppendLine("string_saving:");
                     if (optionLanguage == "rus")
-                        asmResult.Append(BytesToAsm(StringToTiles("  СОХРАНЯЕМСЯ... НЕ ВЫКЛЮЧАЙ!   ")));
+                        asmResult.Append(BytesToAsm(StringToTiles("  СОХРАНЯЕМСЯ... НЕ ВЫКЛЮЧАЙ!   ", symbols)));
                     else
-                        asmResult.Append(BytesToAsm(StringToTiles("   SAVING... DON'T TURN OFF!    ")));
+                        asmResult.Append(BytesToAsm(StringToTiles("   SAVING... DON'T TURN OFF!    ", symbols)));
                     File.WriteAllText(optionAsm, asmResult.ToString());
                     asmResult.AppendLine("string_incompatible_console:");
                     if (optionLanguage == "rus")
-                        asmResult.Append(BytesToAsm(StringToTiles("     ИЗВИНИТЕ,  ДАННАЯ ИГРА       НЕСОВМЕСТИМА С ЭТОЙ КОНСОЛЬЮ                                        НАЖМИТЕ ЛЮБУЮ КНОПКУ      ")));
+                        asmResult.Append(BytesToAsm(StringToTiles("     ИЗВИНИТЕ,  ДАННАЯ ИГРА       НЕСОВМЕСТИМА С ЭТОЙ КОНСОЛЬЮ                                        НАЖМИТЕ ЛЮБУЮ КНОПКУ      ", symbols)));
                     else
-                        asmResult.Append(BytesToAsm(StringToTiles("    SORRY,  THIS GAME IS NOT      COMPATIBLE WITH THIS CONSOLE                                          PRESS ANY BUTTON        ")));
+                        asmResult.Append(BytesToAsm(StringToTiles("    SORRY,  THIS GAME IS NOT      COMPATIBLE WITH THIS CONSOLE                                          PRESS ANY BUTTON        ", symbols)));
                     asmResult.AppendLine("string_prg_ram_test:");
-                    asmResult.Append(BytesToAsm(StringToTiles("PRG RAM TEST:")));
+                    asmResult.Append(BytesToAsm(StringToTiles("PRG RAM TEST:", symbols)));
                     asmResult.AppendLine("string_chr_ram_test:");
-                    asmResult.Append(BytesToAsm(StringToTiles("CHR RAM TEST:")));
+                    asmResult.Append(BytesToAsm(StringToTiles("CHR RAM TEST:", symbols)));
                     asmResult.AppendLine("string_passed:");
-                    asmResult.Append(BytesToAsm(StringToTiles("PASSED")));
+                    asmResult.Append(BytesToAsm(StringToTiles("PASSED", symbols)));
                     asmResult.AppendLine("string_failed:");
-                    asmResult.Append(BytesToAsm(StringToTiles("FAILED")));
+                    asmResult.Append(BytesToAsm(StringToTiles("FAILED", symbols)));
                     asmResult.AppendLine("string_ok:");
-                    asmResult.Append(BytesToAsm(StringToTiles("OK")));
+                    asmResult.Append(BytesToAsm(StringToTiles("OK", symbols)));
                     asmResult.AppendLine("string_error:");
-                    asmResult.Append(BytesToAsm(StringToTiles("ERROR")));
+                    asmResult.Append(BytesToAsm(StringToTiles("ERROR", symbols)));
 
                     asmResult.AppendLine();
                     asmResult.AppendLine();
@@ -887,75 +896,19 @@ namespace Cluster.Famicom
             return true;
         }
 
-        static byte[] StringToTiles(string text)
+        static byte[] StringToTiles(string text, Dictionary<char, byte> symbolsTable)
         {
-            //text = text.ToUpper();
+            text = text.ToUpper();
             var result = new byte[text.Length + 1];
             for (int c = 0; c < result.Length; c++)
             {
-
                 if (c < text.Length)
                 {
-                    //int charCode = Encoding.GetEncoding(1251).GetBytes(text[c].ToString())[0]; // =Oo=
-                    if (text[c] >= 'A' && text[c] <= 'Z')
-                        result[c] = (byte)(text[c] - 'A' + 0x01);
-                    else if (text[c] >= 'a' && text[c] <= 'z')
-                        result[c] = (byte)(text[c].ToString().ToUpper()[0] - 'A' + 0x01);
-                    else if (text[c] >= '1' && text[c] <= '9')
-                        result[c] = (byte)(text[c] - '1' + 0x1B);
-                    else if (text[c] >= 'А' && text[c] <= 'Я')
-                        result[c] = (byte)(text[c] - 'А' + 0x31);
-                    else if (text[c] >= 'а' && text[c] <= 'я')
-                        result[c] = (byte)(text[c] - 'а' + 0x51);
+                    byte charCode;
+                    if (symbolsTable.TryGetValue(text[c], out charCode))
+                        result[c] = charCode;
                     else
-                        switch (text[c])
-                        {
-                            case '0':
-                                result[c] = 0x0F;
-                                break;
-                            case '.':
-                                result[c] = 0x24;
-                                break;
-                            case ',':
-                                result[c] = 0x25;
-                                break;
-                            case '?':
-                                result[c] = 0x26;
-                                break;
-                            case ':':
-                                result[c] = 0x27;
-                                break;
-                            case '—':
-                            case '-':
-                                result[c] = 0x28;
-                                break;
-                            case '&':
-                                result[c] = 0x29;
-                                break;
-                            case '!':
-                                result[c] = 0x2A;
-                                break;
-                            case '(':
-                                result[c] = 0x2B;
-                                break;
-                            case ')':
-                                result[c] = 0x2C;
-                                break;
-                            case '\'':
-                                result[c] = 0x2D;
-                                break;
-                            case '#':
-                            case '+':
-                                result[c] = 0x2E;
-                                break;
-                            case '_':
-                                result[c] = 0x2F;
-                                break;
-                            default:
-                                result[c] = 0x30;
-                                break;
-                        }
-                    result[c] += 0x80;
+                        result[c] = 0xFF;
                 }
             }
             return result;
@@ -1028,7 +981,7 @@ namespace Cluster.Famicom
             public GameFlags Flags;
             public EnlargeMode EMode;
             public bool Battery;
-            public byte Mapper;
+            public ushort Mapper;
             public NesFile.MirroringType Mirroring;
             public uint CRC32;
 
@@ -1066,7 +1019,7 @@ namespace Cluster.Famicom
                     Battery = nesFile.Battery;
                     Mapper = nesFile.Mapper;
                     Mirroring = nesFile.Mirroring;
-                    CRC32 = nesFile.CRC32;
+                    CRC32 = nesFile.CalculateCRC32();
                     if (nesFile.Trainer != null && nesFile.Trainer.Length > 0)
                         throw new Exception(string.Format("{0} - trained games are not supported yet", Path.GetFileName(fileName)));
                     MenuName = menuName;
