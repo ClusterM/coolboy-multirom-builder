@@ -6,7 +6,7 @@ TILER=tools/NesTiler.exe
 COMBINER=tools/CoolboyCombiner.exe
 DUMPER=tools/famicom-dumper.exe 
 PORT?=auto
-MENU_IMAGE?=menu.png
+MENU_IMAGE?=menu_header.png
 NOSORT?=0
 SORT?=
 GAMES?=games.list
@@ -59,7 +59,7 @@ runmenu: $(EXECUTABLE)
 flash: clean $(UNIF)
 	$(DUMPER) write-coolboy --file $(UNIF) --port $(PORT) $(BADS) --sound --check --lock
 
-header: menu_header.png
+header: $(MENU_IMAGE)
 	$(TILER) --i0 menu_header.png --enable-palettes 0,1,2 --out-pattern-table0 menu_header_pattern_table.bin --out-name-table0 menu_header_name_table.bin --out-attribute-table0 menu_header_attribute_table.bin --out-palette0 bg_palette0.bin --out-palette1 bg_palette1.bin --out-palette2 bg_palette2.bin --bgcolor #000000
 
 menu_header_pattern_table.bin: header
@@ -70,13 +70,13 @@ bg_palette1.bin: header
 bg_palette2.bin: header
 
 footer_symbols: menu_symbols.png menu_footer.png
-	$(TILER) -i0 menu_symbols.png -i1 menu_footer.png --enable-palettes 3 --pattern-offset0 128 --pattern-offset1 90 --out-pattern-table0 menu_symbols.bin --out-pattern-table1 menu_footer_pattern_table.bin --out-name-table1 menu_footer_name_table.bin --out-palette3 bg_palette3.bin --bgcolor #000000
+	$(TILER)  --i0 menu_symbols.png --i1 menu_footer.png --enable-palettes 3 --pattern-offset0 128 --pattern-offset1 96 --out-pattern-table0 menu_symbols.bin --out-pattern-table1 menu_footer_pattern_table.bin --out-name-table1 menu_footer_name_table.bin --out-palette3 bg_palette3.bin --bgcolor #000000
 
 footer: footer_symbols
 symbols: footer_symbols
 
 sprites: menu_sprites.png
-	$(TILER) --mode sprites -i0 menu_sprites.png --enable-palettes 0 --out-pattern-table0 menu_sprites.bin --out-palette0 sprites_palette.bin --bgcolor #000000
+	$(TILER) --mode sprites --i0 menu_sprites.png --enable-palettes 0 --out-pattern-table0 menu_sprites.bin --out-palette0 sprites_palette.bin --bgcolor #000000
 
 menu_sprites.bin: sprites
 sprites_palette.bin: sprites

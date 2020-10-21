@@ -5,7 +5,7 @@ SET OUTPUT_BIN=multirom.bin
 SET MENU_IMAGE=menu.png
 SET MAX_SIZE=32
 SET SORT_GAMES=TRUE
-SET TILES_CONVERTER=tools\TilesConverter.exe
+SET TILER=tools\NesTiler.exe
 SET COMBINER=tools\CoolboyCombiner.exe
 SET NESASM=tools\nesasm.exe
 rem SET NESASM=%NESASM% --symbols=%OUTPUT_UNIF% --symbols-offset=24 -iWss 
@@ -29,9 +29,11 @@ if exist %OUTPUT_BIN% del %OUTPUT_BIN%
 if "%1"=="clean" exit 0
 if /I %SORT_GAMES% NEQ TRUE SET NOSORTP=--nosort
 @echo on
-%TILES_CONVERTER% %MENU_IMAGE% menu_pattern0.dat menu_nametable0.dat menu_palette0.dat
+%TILER% --i0 menu_header.png --enable-palettes 0,1,2 --out-pattern-table0 menu_header_pattern_table.bin --out-name-table0 menu_header_name_table.bin --out-attribute-table0 menu_header_attribute_table.bin --out-palette0 bg_palette0.bin --out-palette1 bg_palette1.bin --out-palette2 bg_palette2.bin --bgcolor #000000
 @if %ERRORLEVEL% neq 0 goto error
-%TILES_CONVERTER% menu_sprites.png menu_pattern1.dat menu_nametable1.dat menu_palette1.dat
+%TILER% --i0 menu_symbols.png -i1 menu_footer.png --enable-palettes 3 --pattern-offset0 128 --pattern-offset1 96 --out-pattern-table0 menu_symbols.bin --out-pattern-table1 menu_footer_pattern_table.bin --out-name-table1 menu_footer_name_table.bin --out-palette3 bg_palette3.bin --bgcolor #000000
+@if %ERRORLEVEL% neq 0 goto error
+%TILER% --mode sprites --i0 menu_sprites.png --enable-palettes 0 --out-pattern-table0 menu_sprites.bin --out-palette0 sprites_palette.bin --bgcolor #000000
 @if %ERRORLEVEL% neq 0 goto error
 %COMBINER% prepare --games %GAMES_LIST% --asm games.asm --maxsize %MAX_SIZE% --offsets %OFFSETS_FILE% --report %REPORT_FILE% %NOSORTP% --ver %VERSION%
 @if %ERRORLEVEL% neq 0 goto error
