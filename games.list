@@ -8,9 +8,10 @@
 ; Also you can add third hidden ROM, it will be started using konami code :)
 spec/sram.nes | +?
 spec/controller.nes | ?
+; You can add some separators. Use "-" as filename for it. But you MUST disable auticatic alphabetically sorting to show them.
+- | - GAMES -
 ; Use tailing "/" to add the whole directory
 games/
-; You can add some separators. But you MUST disable automatic alphabetically sorting to show them.
--
+- | - DEMOS -
 ; Just pathes to ROMs
 demos/Unchained_Nostalgia.nes | UNCHAINED NOSTALGIA (DEMO)

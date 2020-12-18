@@ -215,34 +215,28 @@ namespace Cluster.Famicom
                     // Building list of ROMs
                     foreach (var line in lines)
                     {
-                        if (string.IsNullOrEmpty(line.Trim())) continue;
+                        // Skip empty lines
+                        if (string.IsNullOrWhiteSpace(line)) continue;
+                        // Skip comments
                         if (line.StartsWith(";")) continue;
-                        int sepPos = line.TrimEnd().IndexOf('|');
+                        var cols = line.Split(new char[] { '|' }, 2, StringSplitOptions.RemoveEmptyEntries);
+                        string fileName = cols[0].Trim();
+                        string menuName = cols.Length >= 2 ? cols[1] : null;
 
-                        string fileName;
-                        string menuName = null;
-                        if (sepPos < 0)
-                        {
-                            fileName = line.Trim();
-                        }
-                        else
-                        {
-                            fileName = line.Substring(0, sepPos).Trim();
-                            menuName = line.Substring(sepPos + 1).Trim();
-                        }
-
+                        // Is it a directory?
                         if (fileName.EndsWith("/") || fileName.EndsWith("\\"))
                         {
                             Console.WriteLine("Loading directory: {0}", fileName);
                             var files = Directory.GetFiles(fileName, "*.nes");
                             foreach (var file in files)
                             {
-                                Game.LoadGames(games, file);
+                                games.Add(new Game(file));
                             }
                         }
                         else
                         {
-                            Game.LoadGames(games, fileName, menuName);
+                            // No, it's a file
+                            games.Add(new Game(fileName, menuName));
                         }
                     }
 
@@ -985,12 +979,6 @@ namespace Cluster.Famicom
             public NesFile.MirroringType Mirroring;
             public uint CRC32;
 
-            public static void LoadGames(List<Game> games, string fileName, string menuName = null)
-            {
-                var game = new Game(fileName, menuName);
-                games.Add(game);
-                GC.Collect();
-            }
 
             public Game(string fileName, string menuName = null)
             {
@@ -999,7 +987,7 @@ namespace Cluster.Famicom
                 // Separators
                 if (fileName == "-")
                 {
-                    MenuName = "";
+                    MenuName = (string.IsNullOrWhiteSpace(menuName) || menuName == "-") ? "" : menuName;
                     FileName = "";
                     PrgSize = 0;
                     ChrSize = 0;
