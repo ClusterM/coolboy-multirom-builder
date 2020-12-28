@@ -242,7 +242,7 @@ namespace Cluster.Famicom
 
                     // Removing separators
                     if (!optionNoSort)
-                        games = new List<Game>((from game in games where !(string.IsNullOrEmpty(game.FileName) || game.FileName == "-") select game).ToArray());
+                        games = new List<Game>((from game in games where ((game.Flags & GameFlags.Separator) == 0) select game).ToArray());
                     // Sorting
                     if (optionNoSort)
                     {
@@ -272,6 +272,7 @@ namespace Cluster.Famicom
                     var sortedPrgs = from game in games orderby game.PrgSize descending select game;
                     foreach (var game in sortedPrgs)
                     {
+                        if ((game.Flags & GameFlags.Separator) != 0) continue;
                         int prgRoundSize = 1;
                         while (prgRoundSize < game.PrgSize) prgRoundSize *= 2;
                         if (prgRoundSize != game.PrgSize)
@@ -704,7 +705,7 @@ namespace Cluster.Famicom
                     offsetsXml.WriteStartElement("ROMs");
                     foreach (var game in games)
                     {
-                        if (game.FileName == "-") continue;
+                        if ((game.Flags & GameFlags.Separator) != 0) continue;
                         offsetsXml.WriteStartElement("ROM");
                         offsetsXml.WriteElementString("FileName", game.FileName);
                         if (!game.ToString().StartsWith("?"))
