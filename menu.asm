@@ -136,13 +136,13 @@ Start:
   lda <TMP+1
   bne .do_init_modulo
   lda <TMP
-  cmp #LINES_PER_SCREEN
+  cmp #LINES_PER_SCREEN * 2
   bcs .do_init_modulo  
   jmp .init_modulo_end
 .do_init_modulo:
   lda <TMP
   sec
-  sbc #LINES_PER_SCREEN
+  sbc #LINES_PER_SCREEN * 2
   sta <TMP
   lda <TMP+1
   sbc #0
@@ -230,7 +230,7 @@ Start:
 .not_tests:
 
   ; printing game names
-  ldx #15
+  ldx #LINES_PER_SCREEN
   jsr print_last_name
 .print_next_game_at_start:
   inc <LAST_LINE_GAME
@@ -240,7 +240,7 @@ Start:
 .last_line_ok:
   inc <LAST_LINE_MODULO
   lda <LAST_LINE_MODULO
-  cmp #LINES_PER_SCREEN
+  cmp #LINES_PER_SCREEN * 2
   bne .modulo_ok
   lda #0
   sta <LAST_LINE_MODULO
