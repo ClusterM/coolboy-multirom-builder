@@ -501,6 +501,17 @@ namespace Cluster.Famicom
                     byte baseBank = 0;
                     var asmResult = new StringBuilder();
                     asmResult.AppendLine("; Games database");
+                    asmResult.AppendLine();
+                    asmResult.AppendLine("; Common constants");
+                    asmResult.AppendLine($"GAMES_COUNT .equ {(games.Count - hiddenCount)}");
+                    asmResult.AppendLine($"GAMES_OFFSET .equ {((games.Count - hiddenCount) > 10 ? 0 : 5 - (games.Count - hiddenCount) / 2)}");
+                    asmResult.AppendLine($"MAXIMUM_SCROLL .equ {Math.Max(0, (games.Count - hiddenCount) - 11)}");
+                    asmResult.AppendLine($"SAVES_COUNT .equ {saveId}");
+                    asmResult.AppendLine($"SECRETS .equ {hiddenCount}");
+                    asmResult.AppendLine();
+                    asmResult.AppendLine();
+                    asmResult.AppendLine("; Registers to start games");
+
                     int regCount = 0;
                     foreach (var reg in regs.Keys)
                     {
@@ -568,26 +579,6 @@ namespace Cluster.Famicom
                         c++;
                     }
 
-                    asmResult.AppendLine();
-                    asmResult.AppendLine("  .bank 14");
-                    asmResult.AppendLine("  .org $C800");
-                    asmResult.AppendLine();
-                    asmResult.AppendLine("games_count:");
-                    asmResult.AppendLine("  .dw " + (games.Count - hiddenCount));
-                    asmResult.AppendLine();
-                    asmResult.AppendLine();
-                    asmResult.AppendLine("saves_count:");
-                    asmResult.AppendLine("  .db " + saveId);
-                    asmResult.AppendLine();
-                    asmResult.AppendLine();
-                    asmResult.AppendLine("games_offset:");
-                    asmResult.AppendLine("  .db " + ((games.Count - hiddenCount) > 10 ? 0 : 5 - (games.Count - hiddenCount) / 2));
-                    asmResult.AppendLine();
-                    asmResult.AppendLine();
-                    asmResult.AppendLine("maximum_scroll:");
-                    asmResult.AppendLine("  .dw " + Math.Max(0, games.Count - 11 - hiddenCount));
-                    asmResult.AppendLine();
-                    asmResult.AppendLine();
                     asmResult.AppendLine("string_file:");
                     asmResult.Append(BytesToAsm(StringToTiles("FILE: " + Path.GetFileName(optionGames), symbols)));
                     asmResult.AppendLine("string_build_date:");

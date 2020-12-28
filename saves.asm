@@ -97,9 +97,9 @@ load_state:
 	; check for overflow
 	lda <SELECTED_GAME
 	sec
-	sbc games_count
+	sbc #GAMES_COUNT & $FF
 	lda <SELECTED_GAME+1
-	sbc games_count+1	
+	sbc #(GAMES_COUNT >> 8) & $FF
 	bcs .ovf	
 	lda BUFFER+3
 	sta <SCROLL_LINES_TARGET
@@ -315,7 +315,7 @@ flash_format_sector:
   rts
 
 flash_cleanup:
-  lda saves_count
+  lda #SAVES_COUNT
   beq flash_format_sector ; no games with saves
   ; format other sector (erase, write signature)
   ; go to dest bank
@@ -324,7 +324,7 @@ flash_cleanup:
   jsr switch_sector ; source
   lda #0
 .save_id_loop:
-  cmp saves_count
+  cmp #SAVES_COUNT
   beq .end
   clc
   adc #1 ; next
