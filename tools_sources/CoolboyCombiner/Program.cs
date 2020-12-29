@@ -504,8 +504,6 @@ namespace Cluster.Famicom
                     asmResult.AppendLine();
                     asmResult.AppendLine("; Common constants");
                     asmResult.AppendLine($"GAMES_COUNT .equ {(games.Count - hiddenCount)}");
-                    asmResult.AppendLine($"GAMES_OFFSET .equ {((games.Count - hiddenCount) > 10 ? 0 : 5 - (games.Count - hiddenCount) / 2)}");
-                    asmResult.AppendLine($"MAXIMUM_SCROLL .equ {Math.Max(0, (games.Count - hiddenCount) - 11)}");
                     asmResult.AppendLine($"SAVES_COUNT .equ {saveId}");
                     asmResult.AppendLine($"SECRETS .equ {hiddenCount}");
                     asmResult.AppendLine();
