@@ -278,7 +278,7 @@ namespace Cluster.Famicom
                         if (prgRoundSize != game.PrgSize)
                             throw new Exception(string.Format("Invalid ROM size: {0} in {1}", game.PrgSize, game));
 
-                        byte[] originalPrg = game.ROM.PRG;
+                        byte[] originalPrg = game.ROM.PRG.ToArray();
                         byte?[] prg;
 
                         // Need to enlarge ROM?
@@ -337,7 +337,7 @@ namespace Cluster.Famicom
                     foreach (var game in sortedChrs)
                     {
                         if (game.ChrSize == 0) continue;
-                        var chr = game.ROM.CHR;
+                        var chr = game.ROM.CHR.ToArray();
 
                         Console.WriteLine("Fitting CHR for {0} ({1}kbytes)...", game, game.ChrSize / 1024);
                         for (int pos = 0; pos < optionMaxSize * 1024 * 1024; pos += 0x2000)
@@ -734,7 +734,7 @@ namespace Cluster.Famicom
 
                         Console.Write("Loading loader... ");
                         var loaderFile = new NesFile(optionLoader);
-                        Array.Copy(loaderFile.PRG, 0, result, loaderOffset, loaderSize);
+                        Array.Copy(loaderFile.PRG.ToArray(), 0, result, loaderOffset, loaderSize);
                         Console.WriteLine("OK.");
 
                         offsetsIterator = offsetsNavigator.Select("/Offsets/ROMs/ROM");
@@ -775,17 +775,17 @@ namespace Cluster.Famicom
                                     switch (EMode)
                                     {
                                         case EnlargeMode.None:
-                                            Array.Copy(nesFile.PRG, 0, result, prgOffset, nesFile.PRG.Length);
+                                            Array.Copy(nesFile.PRG.ToArray(), 0, result, prgOffset, nesFile.PRG.Count());
                                             break;
                                         case EnlargeMode.LastBankOnly:
-                                            var prgLast = EnlargePrgLastBank(nesFile.PRG);
+                                            var prgLast = EnlargePrgLastBank(nesFile.PRG.ToArray());
                                             for (int i = 0; i < prgLast.Length; i++)
                                                 if (prgLast[i] != null)
                                                     result[i + prgOffset] = prgLast[i] ?? 0xFF;
                                             break;
                                         case EnlargeMode.FullMirror:
                                             Console.WriteLine("Full enlarging for " + filename);
-                                            var prgFull = EnlargePrgFull(nesFile.PRG);
+                                            var prgFull = EnlargePrgFull(nesFile.PRG.ToArray());
                                             for (int i = 0; i < prgFull.Length; i++)
                                                 if (prgFull[i] != null)
                                                     result[i + prgOffset] = (byte)prgFull[i];
@@ -793,7 +793,7 @@ namespace Cluster.Famicom
                                     }
                                 }
                                 if (chrOffset >= 0)
-                                    Array.Copy(nesFile.CHR, 0, result, chrOffset, nesFile.CHR.Length);
+                                    Array.Copy(nesFile.CHR.ToArray(), 0, result, chrOffset, nesFile.CHR.Count());
                                 Console.WriteLine("OK.");
                             }
                             GC.Collect();
@@ -992,13 +992,13 @@ namespace Cluster.Famicom
                     var fix = nesFile.CorrectRom();
                     if (fix != 0)
                         Console.WriteLine(" Invalid header. Fix: " + fix);
-                    PrgSize = nesFile.PRG.Length;
-                    ChrSize = nesFile.CHR.Length;
+                    PrgSize = nesFile.PRG.Count();
+                    ChrSize = nesFile.CHR.Count();
                     Battery = nesFile.Battery;
                     Mapper = nesFile.Mapper;
                     Mirroring = nesFile.Mirroring;
                     CRC32 = nesFile.CalculateCRC32();
-                    if (nesFile.Trainer != null && nesFile.Trainer.Length > 0)
+                    if (nesFile.Trainer != null && nesFile.Trainer.Count() > 0)
                         throw new Exception(string.Format("{0} - trained games are not supported yet", Path.GetFileName(fileName)));
                     MenuName = menuName;
                 }
