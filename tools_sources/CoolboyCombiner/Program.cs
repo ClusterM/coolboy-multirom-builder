@@ -576,7 +576,10 @@ namespace Cluster.Famicom
                         asmResult.Append(asm);
                         c++;
                     }
-
+                    asmResult.AppendLine();
+                    asmResult.AppendLine("  .bank 14");
+                    asmResult.AppendLine("  .org $C800");
+                    asmResult.AppendLine();
                     asmResult.AppendLine("string_file:");
                     asmResult.Append(BytesToAsm(StringToTiles("FILE: " + Path.GetFileName(optionGames), symbols)));
                     asmResult.AppendLine("string_build_date:");
