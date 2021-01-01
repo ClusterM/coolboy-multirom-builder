@@ -174,6 +174,10 @@ Start:
   stx SPRITE_0_ATTR
   ldx #%01000000
   stx SPRITE_1_ATTR
+
+  ; prevent first attributes load skip
+  lda #1
+  sta LAST_ATTRIBUTE_ADDRESS
   
   ; reser stars spawn timer
   lda #0
