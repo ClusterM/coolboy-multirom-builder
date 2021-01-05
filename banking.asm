@@ -21,7 +21,7 @@ banking_init:
   sta $8000
   lda #$05
   sta $8001
-  ; CHR at $1800-$1BFF  
+  ; CHR at $1800-$1BFF
   lda #$04
   sta $8000
   lda #$06
@@ -59,12 +59,12 @@ disable_chr_write:
 
   ; select 16KB bank at $8000-$BFFF
 select_prg_bank:
-  clc  
+  clc
   adc #$18 ; start of ROM (+368K)
   ldx #6
   stx $8000
   asl A
-  sta $8001  
+  sta $8001
   inx
   stx $8000
   ora #1
@@ -111,7 +111,7 @@ select_chr_bank:
   pla
   ora #%00000111
   sta $8001
-	rts	
+  rts
 
   ; COOLBOY has not any PRG RAM banking
 select_prg_ram_bank:

@@ -47,11 +47,11 @@ write_state:
 	lda <SAVES_BANK
 	sta <NROM_BANK_L ; storing saves bank number
 	lda #$FF
-	sta <NROM_BANK_H ; at the very end of flash memory	
+	sta <NROM_BANK_H ; at the very end of flash memory
 	ldx #6; 6 bytes
 	jsr flash_write
 	rts
-	
+
 load_state:
 	.if USE_FLASH_WRITING=0
 	rts
@@ -62,7 +62,7 @@ load_state:
 	beq .end
 	lda BUTTONS
 	cmp #$5C ; Up+Left+Select+Start = full erase
-	bne .no_force_erase	
+	bne .no_force_erase
 	jsr flash_force_erase
 	rts
 .no_force_erase:
@@ -88,7 +88,7 @@ load_state:
 	sbc #0
 	sta COPY_SOURCE_ADDR+1
 	ldx #8
-	jsr flash_read ; loading 8 bytes of data	
+	jsr flash_read ; loading 8 bytes of data
 	; loading last started game
 	lda BUFFER+1
 	sta <SELECTED_GAME
@@ -100,7 +100,7 @@ load_state:
 	sbc #GAMES_COUNT & $FF
 	lda <SELECTED_GAME+1
 	sbc #(GAMES_COUNT >> 8) & $FF
-	bcs .ovf	
+	bcs .ovf
 	lda BUFFER+3
 	sta <SCROLL_LINES_TARGET
 	lda BUFFER+4
@@ -118,7 +118,7 @@ load_state:
 .clean_not_required:
 	jsr save_last_game
 .end:
-	rts	
+	rts
 .ovf:
 	; the very first game
 	lda #0
@@ -190,7 +190,7 @@ find_saves_bank:
   lda #$00
   sta COPY_SOURCE_ADDR
   lda #$80
-  sta COPY_SOURCE_ADDR+1  
+  sta COPY_SOURCE_ADDR+1
   lda #$FF
   sta <NROM_BANK_H
   lda #($100 - 8 * 2) ; last - 8 (8 banks*16kb = sector size) * 2
@@ -250,7 +250,7 @@ find_save_slot:
 .save_search_next:
   inx
   cpx #16
-  bne .save_search_loop  
+  bne .save_search_loop
   ; Y contains slot number... or zero
   rts
 
@@ -269,7 +269,7 @@ flash_write_prg_ram:
   iny
   bne .read_loop
   ldx #0
-  jsr flash_write  
+  jsr flash_write
   inc COPY_DEST_ADDR+1
   inc COPY_SOURCE_ADDR+1
   bpl .loop
@@ -305,7 +305,7 @@ flash_format_sector:
   lda #$00
   sta COPY_DEST_ADDR
   lda #$80
-  sta COPY_DEST_ADDR+1  
+  sta COPY_DEST_ADDR+1
   ldx #8
   jsr flash_write
   lda #$20
@@ -333,7 +333,7 @@ flash_cleanup:
   jsr find_save_slot
   cpy #0 ; if save slop is 0...
   beq .save_id_loop ; not found, next
-  pha ; save current save id  
+  pha ; save current save id
   sta BUFFER
   tya
   pha ; save slot id
@@ -344,7 +344,7 @@ flash_cleanup:
   sta COPY_DEST_ADDR+1
   jsr switch_sector ; dest
   ldx #1
-  jsr flash_write  
+  jsr flash_write
   jsr switch_sector ; source
   pla ; load slot id
   pha ; but still keep it in stack
@@ -379,9 +379,9 @@ flash_cleanup:
   lda COPY_DEST_ADDR+1 ; load high byte of dest address and check it
   cmp #$A0 ; $A0? it's end of data
   beq .copy_end ; go to end
-  cmp #$C0 ; $C0? it's end too... 
+  cmp #$C0 ; $C0? it's end too...
   bne .copy_loop ; continue copying otherwise
-.copy_end:  
+.copy_end:
   pla ; restore save id from stack
   jmp .save_id_loop ; repeat with next game
 .end:
@@ -397,7 +397,7 @@ switch_sector:
   pha
   lda <SAVES_BANK
   eor #8 ; 8 banks*16kb = sector size
-  sta <SAVES_BANK  
+  sta <SAVES_BANK
   lda <NROM_BANK_L
   eor #8 ; 8 banks*16kb = sector size
   sta <NROM_BANK_L
@@ -405,4 +405,4 @@ switch_sector:
   rts
 
 saves_signature:
-  .db 'C','O','O','L','S','A','V','E'  
+  .db 'C','O','O','L','S','A','V','E'

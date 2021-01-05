@@ -28,7 +28,7 @@ loader:
 	sta COOLBOY_REG_2
 	lda <LOADER_REG_3
 	sta COOLBOY_REG_3
-	
+
 	; PRG RAM fix
 	lda #$80
 	sta $A001 ; enable PRG-RAM
@@ -89,7 +89,7 @@ loader:
 	sta [COPY_SOURCE_ADDR], y
 	iny
 	cpy #LOW(.loop2) ; to the very end
-	bne .loop2	
+	bne .loop2
 	; Start game!
 	jmp [$FFFC]
 	.org .end_of_loader
@@ -97,13 +97,13 @@ loader:
 	; CHR data loader, only one 8KB bank
 load_chr:
 	lda #$00
-	sta $2006
-	sta $2006
+	sta PPUADDR
+	sta PPUADDR
 	ldy #$00
 	ldx #$20
 .loop:
 	lda [COPY_SOURCE_ADDR], y
-	sta $2007
+	sta PPUDATA
 	iny
 	bne .loop
 	inc COPY_SOURCE_ADDR+1
@@ -141,13 +141,13 @@ load_all_chr_banks:
 	sta <COPY_SOURCE_ADDR+1
 	cmp #$80
 	bne .chr_s_not_inc ; if $8000 need to increament source bank
-	lda <NROM_BANK_L	
+	lda <NROM_BANK_L
 	clc
 	adc #1
 	sta <NROM_BANK_L
 	lda <NROM_BANK_H
 	adc #0
-	sta <NROM_BANK_H	
+	sta <NROM_BANK_H
 .chr_s_not_inc:
 	inc <CHR_BANK8 ; also need to increament target CHR bank
 	lda <CHR_BANK8
@@ -157,7 +157,7 @@ load_all_chr_banks:
 	lda <LOADER_CHR_COUNT
 	cmp <LOADER_CHR_SIZE_SOURCE ; was it last SOURCE bank?
 	beq .reinit ; need to repeat all data then
-	jmp .loop	
+	jmp .loop
 .end:
 	lda #$00
 	sta COOLBOY_REG_0
@@ -220,10 +220,10 @@ select_prg_chr_banks:
 	lda <CHR_BANK8
 	and #%00001111
 	sta COOLBOY_REG_2
-	;6003	
+	;6003
 	lda <NROM_BANK_L
 	and #%00000111 ; 3, 2, 1
 	asl A
 	ora #%00010000 ; NROM mode
 	sta COOLBOY_REG_3
-	rts	
+	rts

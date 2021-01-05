@@ -30,17 +30,17 @@ flash_erase_sector:
   lda #$F0
   sta $8000
   lda #$AA
-  sta $8AAA  
+  sta $8AAA
   lda #$55
-  sta $8555  
+  sta $8555
   lda #$80
-  sta $8AAA  
+  sta $8AAA
   lda #$AA
-  sta $8AAA  
+  sta $8AAA
   lda #$55
-  sta $8555  
+  sta $8555
   lda #$30
-  sta $8000  
+  sta $8000
 .wait:
   lda $8000
   cmp #$FF
@@ -71,11 +71,11 @@ flash_write:
   bne .wait
   cmp BUFFER, y
   bne .wait
-  iny  
+  iny
   dex
   bne .loop
 .end:
-  jmp flash_return  
+  jmp flash_return
 
   ; read up to 256 bytes from flash to RAM
   ; NROM_BANK_L, NROM_BANK_H - bank
@@ -89,9 +89,9 @@ flash_read:
   sta BUFFER, y
   iny
   dex
-  bne .loop  
+  bne .loop
   jmp flash_return
-  
+
 flash_load_prg_ram:
   ldx #$00
   stx COPY_DEST_ADDR
@@ -108,7 +108,7 @@ flash_load_prg_ram:
   tax
   ldy #0
   lda #$80
-  sta $A001 ; PRG-RAM un-protect  
+  sta $A001 ; PRG-RAM un-protect
 .loop:
   lda BUFFER, y
   pha ; original value to stack
@@ -132,7 +132,7 @@ flash_load_prg_ram:
   and #%00011111
   cmp #%00011111
   bne .store
-  inx  
+  inx
 .store:
   ; storing values in cartridge's RAM
   pla
@@ -157,7 +157,7 @@ flash_find_empty_cell:
   clc
   adc #8
   inx
-  bne .prep_loop  
+  bne .prep_loop
   jsr select_prg_chr_banks
   lda #$80
   sta <STATE_CELL_NEXT+1
@@ -176,13 +176,13 @@ flash_find_empty_cell:
 .end:
   sty <STATE_CELL_NEXT
   jmp flash_return
-    
+
   ; Returh to 0th bank and reinit
 flash_return:
   ldx #$00
   ldy #$00
   stx $8000
-  sty $8001 ; 0  
+  sty $8001 ; 0
   inx
   iny
   iny
@@ -204,11 +204,11 @@ flash_return:
   inx
   iny
   stx $8000
-  sty $8001 ; 7  
+  sty $8001 ; 7
   lda #$01
   sta $A000 ; mirroring
   lda #$00
-  sta $A001 ; PRG-RAM protect    
+  sta $A001 ; PRG-RAM protect
   sta COOLBOY_REG_0
   sta COOLBOY_REG_1
   sta COOLBOY_REG_2

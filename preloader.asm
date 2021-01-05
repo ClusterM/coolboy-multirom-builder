@@ -2,12 +2,12 @@
 start_game:
   ; disable PPU
   lda #%00000000
-  sta $2000
+  sta PPUCTRL
   lda #%00000000
-  sta $2001
+  sta PPUMASK
   ; wait for v-blank
   jsr waitblank_simple
-  
+
   .if SECRETS>=3
   ; check for konami code
   lda <KONAMI_CODE_STATE
@@ -22,7 +22,7 @@ start_game:
   sta <SELECTED_GAME+1
 .no_konami_code:
   .endif
-  
+
   ; loading game settings
   lda <SELECTED_GAME+1
   jsr select_prg_bank
@@ -60,22 +60,22 @@ start_game:
   jsr save_state
   jsr load_text_palette
   lda #$21
-  sta $2006
+  sta PPUADDR
   lda #$A0
-  sta $2006
+  sta PPUADDR
   lda #LOW(string_incompatible_console)
   sta <COPY_SOURCE_ADDR
   lda #HIGH(string_incompatible_console)
   sta <COPY_SOURCE_ADDR+1
   jsr print_text
-  bit $2002
+  bit PPUSTATUS
   lda #0
-  sta $2005
-  sta $2005
+  sta PPUSCROLL
+  sta PPUSCROLL
   lda #%00001000
-  sta $2000
+  sta PPUCTRL
   lda #%00001010
-  sta $2001
+  sta PPUMASK
   jsr waitblank_simple
 .incompatible_print_wait_no_button:
   jsr read_controller
@@ -97,8 +97,8 @@ start_game:
   jsr load_black
   ; loading game settings
   jsr save_state
-  jsr load_all_chr_banks  
-  
+  jsr load_all_chr_banks
+
   lda <LAST_STARTED_SAVE
   jsr find_save_slot
   cpy #0
@@ -119,7 +119,7 @@ start_game:
   lda #$A0
 .subbank:
   sta <COPY_SOURCE_ADDR+1
-  jsr flash_load_prg_ram  
+  jsr flash_load_prg_ram
 .no_save:
   ; wait for sound end and reset sound registers
   jsr wait_sound_end

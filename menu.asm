@@ -55,12 +55,12 @@ Start:
 
   ; reset stack
   ldx #$ff
-  txs 
-  
+  txs
+
   lda #%00000000 ; PPU disabled
-  sta $2000
-  sta $2001
-  
+  sta PPUCTRL
+  sta PPUMASK
+
   jsr waitblank_simple
 
   ; clean memory
@@ -79,20 +79,20 @@ Start:
 
   jsr clear_screen
   jsr load_black
-  
+
   ; enable PPU to show black screen
   lda #%00001010
-  sta $2001
-  
+  sta PPUMASK
+
   ; wait some time
   ldx #15
 .start_wait:
   jsr waitblank_simple
   dex
   bne .start_wait
-  
+
   lda #%00000000 ; disable PPU
-  sta $2001
+  sta PPUMASK
   jsr waitblank_simple
 
   ; loading loader and other RAM routines
@@ -104,7 +104,7 @@ Start:
   sta ram_routines+$100, x
   lda ram_routines+$C200, x
   sta ram_routines+$200, x
-  inx             
+  inx
   bne .load_ram_routines
 
   ; init banks and other cart stuff
@@ -114,11 +114,11 @@ Start:
   ; load CHR data
   jsr load_base_chr
   ; palette
-  jsr load_base_pal 
+  jsr load_base_pal
   ; clear all sprites data
   jsr clear_sprites
   ; load this empty sprites data
-  jsr sprite_dma_copy 
+  jsr sprite_dma_copy
 
   jsr read_controller ; read buttons
   jsr load_state ; loading saved cursor position and other data
@@ -131,14 +131,14 @@ Start:
   sta <SCROLL_LINES+1
   sta <LAST_LINE_GAME+1
   sta <TMP+1
-  
+
   ; calculate modulo
 .init_modulo:
   lda <TMP+1
   bne .do_init_modulo
   lda <TMP
   cmp #LINES_PER_SCREEN * 2
-  bcs .do_init_modulo  
+  bcs .do_init_modulo
   jmp .init_modulo_end
 .do_init_modulo:
   lda <TMP
@@ -148,7 +148,7 @@ Start:
   lda <TMP+1
   sbc #0
   sta <TMP+1
-  jmp .init_modulo  
+  jmp .init_modulo
 .init_modulo_end:
   lda <TMP
   sta <SCROLL_LINES_MODULO
@@ -178,7 +178,7 @@ Start:
   ; prevent first attributes load skip
   lda #1
   sta LAST_ATTRIBUTE_ADDRESS
-  
+
   ; reser stars spawn timer
   lda #0
   sta <STAR_SPAWN_TIMER
@@ -187,7 +187,7 @@ Start:
 
   lda #%00000100
   cmp <BUTTONS
-  bne .skip_build_info  
+  bne .skip_build_info
   ; build and hardware info
   jmp show_build_info
 .skip_build_info:
@@ -253,13 +253,13 @@ Start:
   jsr print_last_name
   dex
   bne .print_next_game_at_start
-  
+
   jsr waitblank_simple
   lda #%00001010 ; second nametable
-  sta $2000
+  sta PPUCTRL
   lda #%00001010 ; disabled sprites
-  sta $2001
-  
+  sta PPUMASK
+
   ; start scrolling
   .if ENABLE_START_SCROLLING!=0
   lda <SELECTED_GAME ; but only if first game selected
@@ -268,10 +268,10 @@ Start:
   bne .intro_scroll_end
   ldx #8
 .intro_scroll:
-  bit $2002
+  bit PPUSTATUS
   lda #0
-  sta $2005
-  stx $2005
+  sta PPUSCROLL
+  stx PPUSCROLL
   jsr waitblank_simple
   jsr read_controller
   ldy #0
@@ -286,7 +286,7 @@ Start:
   .else
   cpx #$e8 ; for large images on the top
   .endif
-  bne .intro_scroll  
+  bne .intro_scroll
   .intro_scroll_end:
   .endif
 
@@ -294,15 +294,15 @@ Start:
   ; updating sprites
   jsr sprite_dma_copy
   lda #%00001000  ; switch to first nametable
-  sta $2000
+  sta PPUCTRL
   lda #%00011110  ; enable sprites
-  sta $2001
-  
+  sta PPUMASK
+
   ; do not hold buttons!
   jsr wait_buttons_not_pressed
 
   ; main loop
-infin:  
+infin:
   jsr waitblank
   jsr buttons_check
   jmp infin
@@ -312,7 +312,7 @@ NMI: ; not used
 
 IRQ: ; not used
   rti
-  
+
   .include "banking.asm"
   .include "misc.asm"
   .include "buttons.asm"
@@ -342,7 +342,7 @@ nametable_header:
   .incbin "menu_header_name_table.bin"
 nametable_footer:
   .incbin "menu_footer_name_table.bin"
-tilepal: 
+tilepal:
   ; palette for background
   .incbin "bg_palette0.bin"
   .incbin "bg_palette1.bin"
