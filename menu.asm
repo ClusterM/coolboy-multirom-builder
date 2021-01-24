@@ -122,6 +122,7 @@ Start:
 
   jsr read_controller ; read buttons
   jsr load_state ; loading saved cursor position and other data
+  jsr check_separator_down ; skip separator if any
 
   lda <SCROLL_LINES_TARGET
   sta <SCROLL_LINES
