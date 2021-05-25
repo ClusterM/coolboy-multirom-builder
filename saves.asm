@@ -89,6 +89,7 @@ load_state:
 	sta COPY_SOURCE_ADDR+1
 	ldx #8
 	jsr flash_read ; loading 8 bytes of data
+  .if ENABLE_LAST_GAME_SAVING!=0
 	; loading last started game
 	lda BUFFER+1
 	sta <SELECTED_GAME
@@ -105,7 +106,15 @@ load_state:
 	sta <SCROLL_LINES_TARGET
 	lda BUFFER+4
 	sta <SCROLL_LINES_TARGET+1
-	lda BUFFER+5
+  .else
+  lda #0
+  sta <SELECTED_GAME
+  sta <SELECTED_GAME+1
+  sta <SCROLL_LINES_TARGET
+  sta <SCROLL_LINES_TARGET+1
+  .endif
+  ; loading last save ID
+  lda BUFFER+5
 	sta <LAST_STARTED_SAVE
 	beq .end
 	; maybe it's time to clean flash?
