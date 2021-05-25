@@ -130,7 +130,7 @@ do_tests:
   jsr select_chr_bank
   jsr load_base_chr
   jsr clear_screen
-  jsr load_text_palette
+  jsr load_text_attributes
   lda #$21
   sta PPUADDR
   lda #$A4
