@@ -5,6 +5,11 @@ TEST_CHR_RAM_FAILED .rs 1
 TEST_BANK .rs 1
 
 do_tests:
+  ; detect CHR RAM size
+  jsr detect_chr_ram_size
+  ; check presense of PRG RAM
+  jsr prg_ram_detect
+do_tests_again:
   ; invert TEST_XOR
   lda <TEST_XOR
   eor #$FF
@@ -13,20 +18,23 @@ do_tests:
   sta PPUCTRL
   sta PPUMASK
   jsr waitblank_simple
-  jsr enable_prg_ram
-  jsr detect_chr_ram_size
+
   lda #$00
   ; writing
   sta <TEST_RW
   ; reset result
   sta <TEST_PRG_RAM_FAILED
   sta <TEST_CHR_RAM_FAILED
-.sram:
+  
+  lda PRG_RAM_PRESENT
+  beq .chr
+  jsr enable_prg_ram
+.prg_ram:
   jsr random_init
   ; select bank
   lda #(PRG_RAM_BANKS-1)
   sta <TEST_BANK
-.sram_test_loop_bank:
+.prg_ram_test_loop_bank:
   jsr beep
   lda <TEST_BANK
   jsr select_prg_ram_bank
@@ -36,34 +44,34 @@ do_tests:
   sta <COPY_DEST_ADDR+1
   ldy #$00
   ldx #$20
-.sram_test_loop:
+.prg_ram_test_loop:
   jsr random ; generate next random number
   lda <TEST_RW ; reading or writing?
-  bne .sram_test_read
+  bne .prg_ram_test_read
   lda <RANDOM
   eor <TEST_XOR
   sta [COPY_DEST_ADDR], y
-  jmp .sram_test_next
-.sram_test_read:
+  jmp .prg_ram_test_next
+.prg_ram_test_read:
   lda <RANDOM
   eor <TEST_XOR
   cmp [COPY_DEST_ADDR], y
-  beq .sram_test_next
+  beq .prg_ram_test_next
   lda #1
   sta TEST_PRG_RAM_FAILED
-.sram_test_next:
+.prg_ram_test_next:
   iny
-  bne .sram_test_loop
+  bne .prg_ram_test_loop
   inc COPY_SOURCE_ADDR+1
   inc COPY_DEST_ADDR+1
   dex
-  bne .sram_test_loop
+  bne .prg_ram_test_loop
   dec <TEST_BANK
-  bpl .sram_test_loop_bank
+  bpl .prg_ram_test_loop_bank
   lda <TEST_RW
   bne .chr
   inc <TEST_RW
-  jmp .sram
+  jmp .prg_ram
 
 .chr:
   jsr disable_prg_ram
@@ -126,11 +134,13 @@ do_tests:
 
   ; results
 .tests_end:
-  lda #0
-  jsr select_chr_bank
   jsr load_base_chr
   jsr clear_screen
   jsr load_text_attributes
+  jsr preload_base_palette
+  jsr load_palette
+
+  ; PRG RAM test result  
   lda #$21
   sta PPUADDR
   lda #$A4
@@ -140,21 +150,35 @@ do_tests:
   lda #HIGH(string_prg_ram_test)
   sta <COPY_SOURCE_ADDR+1
   jsr print_text
+  ; is it present?
+  lda PRG_RAM_PRESENT
+  bne .prg_ram_test_result
+  ; PRG RAM is not present
+  lda #LOW(string_not_available)
+  sta <COPY_SOURCE_ADDR
+  lda #HIGH(string_not_available)
+  sta <COPY_SOURCE_ADDR+1
+  jmp .prg_ram_test_result_print
+.prg_ram_test_result:
   ldx TEST_PRG_RAM_FAILED
-  bne .sram_test_result_fail
+  bne .prg_ram_test_result_fail
+  ; PRG RAM test OK
   lda #LOW(string_passed)
   sta <COPY_SOURCE_ADDR
   lda #HIGH(string_passed)
   sta <COPY_SOURCE_ADDR+1
-  jmp .sram_test_result_print
-.sram_test_result_fail:
+  jmp .prg_ram_test_result_print
+.prg_ram_test_result_fail:
+  ; PRG RAM test failed
   lda #LOW(string_failed)
   sta <COPY_SOURCE_ADDR
   lda #HIGH(string_failed)
   sta <COPY_SOURCE_ADDR+1
-.sram_test_result_print:
+  jmp .prg_ram_test_result_print
+.prg_ram_test_result_print:
   jsr print_text
 
+  ; CHR RAM test result
   lda #$21
   sta PPUADDR
   lda #$E4
@@ -205,4 +229,4 @@ do_tests:
 .do_tests_stop:
   jmp .do_tests_wait
 .do_tests_ok:
-  jmp do_tests
+  jmp do_tests_again
