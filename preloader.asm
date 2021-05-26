@@ -56,10 +56,14 @@ start_game:
   beq .compatible_console
 
   ; not compatible console!
+  ; error sound
+  jsr error_sound
   ; save state, without game save
   lda #0
   sta <LAST_STARTED_SAVE
   jsr save_state
+  ; print error message
+  jsr clear_screen
   jsr load_text_attributes
   lda #$21
   sta PPUADDR
@@ -70,23 +74,31 @@ start_game:
   lda #HIGH(string_incompatible_console)
   sta <COPY_SOURCE_ADDR+1
   jsr print_text
-  bit PPUSTATUS
-  lda #0
-  sta PPUSCROLL
-  sta PPUSCROLL
   lda #%00001000
   sta PPUCTRL
   lda #%00001010
   sta PPUMASK
-  jsr waitblank_simple
+  ; disable scrolling
+  inc SCROLL_LOCK
+  ; dim-in
+  jsr dim_base_palette_in
+; wait until all buttons released
 .incompatible_print_wait_no_button:
   jsr read_controller
   lda <BUTTONS
   bne .incompatible_print_wait_no_button
+  ; tiny delay
+  ldx #15
+.incompatible_wait:
+  jsr waitblank_simple
+  dex
+  bne .incompatible_wait
+  ; wait until any button pressed
 .incompatible_print_wait_button:
   jsr read_controller
   lda <BUTTONS
   beq .incompatible_print_wait_button
+  jsr dim_base_palette_out
   jmp Start
 
 .compatible_console:
