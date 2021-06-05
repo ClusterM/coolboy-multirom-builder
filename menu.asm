@@ -113,6 +113,9 @@ Start:
   ldx #$ff
   txs
 
+  ; disable and reset sound
+  jsr reset_sound
+
   ; disable PPU
   lda #%00000000
   sta PPUCTRL
