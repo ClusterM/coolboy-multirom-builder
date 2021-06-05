@@ -313,6 +313,9 @@ Start:
   ; start dimming
   jsr dim_base_palette_in
 
+  ; do not hold buttons!
+  jsr wait_buttons_really_not_pressed
+
   ; main loop
 infin:
   jsr waitblank
