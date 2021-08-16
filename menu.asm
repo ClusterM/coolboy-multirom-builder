@@ -5,6 +5,10 @@
   .inesmap 4   ; MMC3 mapper
 
   ; default settings
+  ; enable main sounds
+  .ifndef ENABLE_SOUND
+ENABLE_SOUND .equ 1
+  .endif
   ; show stars on background
   .ifndef ENABLE_STARS
 ENABLE_STARS .equ 1
