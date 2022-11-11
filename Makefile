@@ -60,7 +60,7 @@ flash: clean $(UNIF)
 	$(DUMPER) write-coolboy --file $(UNIF) --port $(PORT) $(BADS) --sound --check --lock
 
 header: $(MENU_IMAGE)
-	$(TILER) --i0 $(MENU_IMAGE) --enable-palettes 0,1,2 --out-pattern-table0 menu_header_pattern_table.bin --out-name-table0 menu_header_name_table.bin --out-attribute-table0 menu_header_attribute_table.bin --out-palette0 bg_palette0.bin --out-palette1 bg_palette1.bin --out-palette2 bg_palette2.bin --bgcolor #000000
+	$(TILER) --i0 $(MENU_IMAGE) --enable-palettes 0,1,2 --out-pattern-table0 menu_header_pattern_table.bin --out-name-table0 menu_header_name_table.bin --out-attribute-table0 menu_header_attribute_table.bin --out-palette0 bg_palette0.bin --out-palette1 bg_palette1.bin --out-palette2 bg_palette2.bin --bgcolor \#000000
 
 menu_header_pattern_table.bin: header
 menu_header_name_table.bin: header
@@ -69,8 +69,8 @@ bg_palette0.bin: header
 bg_palette1.bin: header
 bg_palette2.bin: header
 
-footer_symbols: menu_symbols.png menu_footer.png
-	$(TILER)  --i0 menu_symbols.png --i1 menu_footer.png --enable-palettes 3 --pattern-offset0 128 --pattern-offset1 224 --out-pattern-table0 menu_symbols.bin --out-pattern-table1 menu_footer_pattern_table.bin --out-name-table1 menu_footer_name_table.bin --out-palette3 bg_palette3.bin --bgcolor #000000
+footer_symbols: menu_symbols.png
+	$(TILER)  --i0 menu_symbols.png --enable-palettes 3 --pattern-offset0 128 --pattern-offset1 224 --out-pattern-table0 menu_symbols.bin --out-palette3 bg_palette3.bin --bgcolor \#000000
 
 footer: footer_symbols
 symbols: footer_symbols
