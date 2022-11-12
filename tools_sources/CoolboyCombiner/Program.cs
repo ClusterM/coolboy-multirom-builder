@@ -172,7 +172,7 @@ namespace com.clusterrr.Famicom.CoolBoy
                             {
                                 game.PrgOffset = pos;
                                 Array.Copy(game.PRG, 0, result, pos, game.PRG.Length);
-                                usedSpace += game.PRG.Length;
+                                usedSpace = Math.Max(LOADER_OFFSET + LOADER_SIZE, Math.Max(usedSpace, pos + game.PRG.Length));
                                 fitted = true;
                                 Console.WriteLine($"offset: 0x{pos:X8}");
                                 break;
@@ -197,8 +197,8 @@ namespace com.clusterrr.Famicom.CoolBoy
                             {
                                 game.ChrOffset = pos;
                                 Array.Copy(game.CHR, 0, result, pos, game.CHR.Length);
+                                usedSpace = Math.Max(LOADER_OFFSET + LOADER_SIZE, Math.Max(usedSpace, pos + game.CHR.Length));
                                 fitted = true;
-                                usedSpace += game.PRG.Length;
                                 Console.WriteLine($"offset: 0x{pos:X8}");
                                 break;
                             }

@@ -105,7 +105,7 @@ namespace com.clusterrr.Famicom.Multirom
                     if (nesFile.Mapper != 0)
                     {
                         // Enlarge to at lease 128K
-                        while (PRG.Length < 128 * 1024)
+                        while (PRG.Length < 128 * 1024) // TODO: other enlarge methods
                         {
                             var newPrg = new byte[PRG.Length * 2];
                             Array.Copy(PRG, 0, newPrg, 0, PRG.Length);
@@ -130,7 +130,8 @@ namespace com.clusterrr.Famicom.Multirom
                 }
                 else if (ext == ".unf" || ext == ".unif")
                     throw new NotImplementedException("UNIF container is not supported");
-                else throw new InvalidDataException($"Unknown file extension: {ext}");
+                else
+                    throw new InvalidDataException($"Unknown file extension: {ext}");
                 // Check for fixes database
                 if (fixes != null)
                 {
