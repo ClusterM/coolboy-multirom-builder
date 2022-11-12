@@ -61,6 +61,25 @@ DIM_OUT_DELAY .equ 1
   .ifndef INSTANT_STATE_SAVE
 INSTANT_STATE_SAVE .equ 0
   .endif
+  .ifndef USE_FLASH_WRITING
+USE_FLASH_WRITING .equ 0
+  .endif
+  .ifndef COOLBOY_VERSION
+COOLBOY_VERSION .equ 0
+  .endif
+
+  .if COOLBOY_VERSION = 0
+COOLBOY_REG_0 .equ $6000
+COOLBOY_REG_1 .equ $6001
+COOLBOY_REG_2 .equ $6002
+COOLBOY_REG_3 .equ $6003
+  .endif
+  .if COOLBOY_VERSION = 1
+COOLBOY_REG_0 .equ $5000
+COOLBOY_REG_1 .equ $5001
+COOLBOY_REG_2 .equ $5002
+COOLBOY_REG_3 .equ $5003
+  .endif
 
   .ifndef GAMES_DB
 GAMES_DB                        .sequ "games.asm"
