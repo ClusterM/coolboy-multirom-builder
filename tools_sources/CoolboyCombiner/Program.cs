@@ -297,14 +297,19 @@ namespace com.clusterrr.Famicom.CoolBoy
                     int c = 0;
                     foreach (var game in sortedGames)
                     {
+                        if (game.Mapper != 0 && game.Mapper != 4)
+                        {
+                            problems.Add(new InvalidDataException($"Mapper {game.Mapper} is not supported in \"{Path.GetFileName(game.FileName)}\" (only NROM and MMC3 mappers can be used)"));
+                            continue;
+                        }
                         if (game.CHR.Length > config.MaxChrRamSizeKB * 1024)
                         {
-                            problems.Add(new Exception($"CHR size is too big in \"{Path.GetFileName(game.FileName)}\""));
+                            problems.Add(new InvalidDataException($"CHR size is too big in \"{Path.GetFileName(game.FileName)}\""));
                             continue;
                         }
                         if (game.Mirroring == MirroringType.FourScreenVram)
                         {
-                            problems.Add(new Exception($"Four-screen mode is not supported for \"{Path.GetFileName(game.FileName)}\""));
+                            problems.Add(new InvalidDataException($"Four-screen mode is not supported for \"{Path.GetFileName(game.FileName)}\""));
                             continue;
                         }
                         if (game.Trained)
