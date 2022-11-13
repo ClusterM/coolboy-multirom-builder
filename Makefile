@@ -24,6 +24,11 @@ EMU =          fceux64
 DUMPER =       tools/famicom-dumper
 COLORS =       tools/nestiler-colors.json 
 
+MINDKIDS ?= 0
+ifneq ($(MINDKIDS),0)
+MINDKIDS_OPTION=--mindkids
+endif
+
 NOSORT ?= 0
 ifneq ($(NOSORT),0)
 SORT_OPTION=--nosort
@@ -132,22 +137,22 @@ $(GAMES_DB) $(OFFSETS): $(CONFIGS_DIR)/$(GAMES)
 		--language $(LANGUAGE) $(BADS_OPTION)
 
 #$(UNIF): $(SOURCES) $(HEADER_FILES) $(FOOTER_FILES) $(SYMBOL_FILES) $(SPRITE_FILES) $(MENU_ROM) $(OFFSETS)
-#	$(COMBINER) combine --loader $(MENU_ROM) --offsets $(OFFSETS) --unif $(UNIF)
+#	$(COMBINER) combine --loader $(MENU_ROM) --offsets $(OFFSETS) --unif $(UNIF) $(MINDKIDS_OPTION) 
 
 $(UNIF): $(SOURCES) $(HEADER_FILES) $(FOOTER_FILES) $(SYMBOL_FILES) $(SPRITE_FILES) $(CONFIGS_DIR)/$(GAMES)
 	$(COMBINER) build --games $(CONFIGS_DIR)/$(GAMES) --asm $(GAMES_DB) \
-		--maxromsize $(SIZE) --maxchrsize $(MAXCHRSIZE) $(REPORT_OPTION) $(SORT_OPTION) --language $(LANGUAGE) \
+		--maxromsize $(SIZE) --maxchrsize $(MAXCHRSIZE) $(REPORT_OPTION) $(MINDKIDS_OPTION) $(SORT_OPTION) --language $(LANGUAGE) \
 		--nesasm $(NESASM) --nesasm-args "$(NESASM_OPTS)"  $(BADS_OPTION) \
 		--unif $(UNIF)
 
 unif: $(UNIF)	
 
 #$(NES20): $(SOURCES) $(HEADER_FILES) $(FOOTER_FILES) $(SYMBOL_FILES) $(SPRITE_FILES) $(MENU_ROM) $(OFFSETS)
-#	$(COMBINER) combine --loader $(MENU_ROM) --offsets $(OFFSETS) --nes20 $(NES20)
+#	$(COMBINER) combine --loader $(MENU_ROM) --offsets $(OFFSETS) --nes20 $(NES20) $(MINDKIDS_OPTION) 
 
 $(NES20): $(SOURCES) $(HEADER_FILES) $(FOOTER_FILES) $(SYMBOL_FILES) $(SPRITE_FILES) $(CONFIGS_DIR)/$(GAMES)
 	$(COMBINER) build --games $(CONFIGS_DIR)/$(GAMES) --asm $(GAMES_DB) \
-		--maxromsize $(SIZE) --maxchrsize $(MAXCHRSIZE) $(REPORT_OPTION) $(SORT_OPTION) --language $(LANGUAGE) \
+		--maxromsize $(SIZE) --maxchrsize $(MAXCHRSIZE) $(REPORT_OPTION)  $(MINDKIDS_OPTION) $(SORT_OPTION) --language $(LANGUAGE) \
 		--nesasm $(NESASM) --nesasm-args "$(NESASM_OPTS)"  $(BADS_OPTION) \
 		--nes20 $(NES20)
 
@@ -155,11 +160,11 @@ nes20: $(NES20)
 nes: nes20
 
 #$(BIN): $(SOURCES) $(HEADER_FILES) $(FOOTER_FILES) $(SYMBOL_FILES) $(SPRITE_FILES) $(MENU_ROM) $(OFFSETS)
-#	$(COMBINER) combine --loader $(MENU_ROM) --offsets $(OFFSETS) --bin $(BIN)
+#	$(COMBINER) combine --loader $(MENU_ROM) --offsets $(OFFSETS) --bin $(BIN) $(MINDKIDS_OPTION)
 
 $(BIN): $(SOURCES) $(HEADER_FILES) $(FOOTER_FILES) $(SYMBOL_FILES) $(SPRITE_FILES) $(CONFIGS_DIR)/$(GAMES)
 	$(COMBINER) build --games $(CONFIGS_DIR)/$(GAMES) --asm $(GAMES_DB) \
-		--maxromsize $(SIZE) --maxchrsize $(MAXCHRSIZE) $(REPORT_OPTION) $(SORT_OPTION) --language $(LANGUAGE) \
+		--maxromsize $(SIZE) --maxchrsize $(MAXCHRSIZE) $(REPORT_OPTION)  $(MINDKIDS_OPTION) $(SORT_OPTION) --language $(LANGUAGE) \
 		--nesasm $(NESASM) --nesasm-args "$(NESASM_OPTS)"  $(BADS_OPTION) \
 		--bin $(BIN)
 

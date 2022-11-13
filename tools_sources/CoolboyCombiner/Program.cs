@@ -541,7 +541,7 @@ namespace com.clusterrr.Famicom.CoolBoy
                         var process = new Process();
                         var cp866 = CodePagesEncodingProvider.Instance.GetEncoding(866) ?? Encoding.ASCII;
                         process.StartInfo.FileName = config.NesAsm;
-                        process.StartInfo.Arguments = $"\"menu.asm\" -r -o - -C \"GAMES_DB={config.AsmFile}\" " + config.NesAsmArgs;
+                        process.StartInfo.Arguments = $"\"menu.asm\" -r -o - -C \"GAMES_DB={config.AsmFile}\" -D COOLBOY_VERSION={(!config.Mindkids ? 0 : 1)}" + config.NesAsmArgs;
                         process.StartInfo.WorkingDirectory = config.SourcesDir;
                         process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
                         process.StartInfo.UseShellExecute = false;
@@ -641,7 +641,7 @@ namespace com.clusterrr.Famicom.CoolBoy
                         Console.Write("Saving UNIF file... ");
                         var u = new UnifFile();
                         u.Version = 5;
-                        u.Mapper = "COOLBOY"; // TODO: MINDKIDS
+                        u.Mapper = !config.Mindkids ? "COOLBOY" : "MINDKIDS";
                         u.Mirroring = MirroringType.MapperControlled;
                         u.PRG0 = result!;
                         u.Battery = true;
@@ -656,7 +656,7 @@ namespace com.clusterrr.Famicom.CoolBoy
                         nes.PRG = result!;
                         nes.CHR = Array.Empty<byte>();
                         nes.Mapper = 268;
-                        nes.Submapper = 0; // TODO: MINDKIDS
+                        nes.Submapper = (byte)(!config.Mindkids ? 0 : 1);
                         nes.PrgNvRamSize = 8 * 1024;
                         nes.ChrRamSize = config.MaxChrRamSizeKB * 1024;
                         nes.Battery = true;
