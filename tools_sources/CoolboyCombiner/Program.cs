@@ -216,10 +216,13 @@ namespace com.clusterrr.Famicom.CoolBoy
                     // Round up to minimum PRG bank size
                     usedSpace = 0x4000 * (int)Math.Ceiling((float)usedSpace / (float)0x4000);
                     int romSize = usedSpace;
-                    // Round up to sector size
-                    usedSpace = FLASH_SECTOR_SIZE * (int)Math.Ceiling((float)usedSpace / (float)FLASH_SECTOR_SIZE);
-                    // Space for saves
-                    usedSpace += FLASH_SECTOR_SIZE * (int)Math.Ceiling(saveId / 4.0);
+                    if (config.Saves)
+                    {
+                        // Round up to sector size
+                        usedSpace = FLASH_SECTOR_SIZE * (int)Math.Ceiling((float)usedSpace / (float)FLASH_SECTOR_SIZE);
+                        // Space for saves
+                        usedSpace += FLASH_SECTOR_SIZE * 2;
+                    }
 
                     int totalSize = 0;
                     int maxChrSize = 0;
@@ -252,7 +255,7 @@ namespace com.clusterrr.Famicom.CoolBoy
                     }
                     report.Add("");
                     report.Add($"Total games: {sortedGames.Count() - hiddenCount}");
-                    report.Add($"Final ROM size: {Math.Round(usedSpace / 1024.0 / 1024.0, 3)}MB");
+                    report.Add($"Total flash memoy space used: {Math.Round(usedSpace / 1024.0 / 1024.0, 3)}MB");
                     report.Add($"Maximum CHR size: {maxChrSize / 1024}KB");
                     report.Add($"Battery-backed games: {saveId}");
 
@@ -541,7 +544,7 @@ namespace com.clusterrr.Famicom.CoolBoy
                         var process = new Process();
                         var cp866 = CodePagesEncodingProvider.Instance.GetEncoding(866) ?? Encoding.ASCII;
                         process.StartInfo.FileName = config.NesAsm;
-                        process.StartInfo.Arguments = $"\"menu.asm\" -r -o - -C \"GAMES_DB={config.AsmFile}\" -D COOLBOY_VERSION={(!config.Mindkids ? 0 : 1)}" + config.NesAsmArgs;
+                        process.StartInfo.Arguments = $"\"menu.asm\" -r -o - -C \"GAMES_DB={config.AsmFile}\" -D COOLBOY_VERSION={(!config.Mindkids ? 0 : 1)} -D USE_FLASH_WRITING={(!config.Saves ? 0 : 1)}" + config.NesAsmArgs;
                         process.StartInfo.WorkingDirectory = config.SourcesDir;
                         process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
                         process.StartInfo.UseShellExecute = false;
@@ -644,7 +647,7 @@ namespace com.clusterrr.Famicom.CoolBoy
                         u.Mapper = !config.Mindkids ? "COOLBOY" : "MINDKIDS";
                         u.Mirroring = MirroringType.MapperControlled;
                         u.PRG0 = result!;
-                        u.Battery = true;
+                        u.Battery = config.Saves; // Actually, not supported by any emulator
                         u.Save(config.UnifFile);
                         Console.WriteLine("OK");
                     }
@@ -659,7 +662,7 @@ namespace com.clusterrr.Famicom.CoolBoy
                         nes.Submapper = (byte)(!config.Mindkids ? 0 : 1);
                         nes.PrgNvRamSize = 8 * 1024;
                         nes.ChrRamSize = config.MaxChrRamSizeKB * 1024;
-                        nes.Battery = true;
+                        nes.Battery = config.Saves; // Actually, not supported by any emulator
                         nes.Save(config.Nes20File);
                         Console.WriteLine("OK");
                     }

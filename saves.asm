@@ -1,111 +1,111 @@
 SAVES_BANK .rs 1 ; bank with saves
 LAST_STARTED_SAVE .rs 1 ; last used save ID
 
-	; saving last selected game
+  ; saving last selected game
 save_state:
-	.if USE_FLASH_WRITING=0
-	rts
-	.endif
+  .if USE_FLASH_WRITING=0
+  rts
+  .endif
   ; detect flash memory type
   jsr flash_detect
-	lda <FLASH_TYPE
-	beq .end
-	lda <SAVES_BANK
-	bne .bank_already_formatted
-	lda #($100 - 8) ; last bank - 8*16kb
-	sta <SAVES_BANK
-	jsr flash_format_sector
+  lda <FLASH_TYPE
+  beq .end ; not writable flash
+  lda <SAVES_BANK
+  bne .bank_already_formatted
+  lda #($100 - 8) ; last bank - 8*16kb
+  sta <SAVES_BANK
+  jsr flash_format_sector
 .bank_already_formatted:
-	jsr write_state
+  jsr write_state
 .end:
-	rts
+  rts
 
 write_state:
-	lda #0
-	sta BUFFER ; marker
-	; last started game
-	lda <SELECTED_GAME
-	sta BUFFER+1
-	lda <SELECTED_GAME+1
-	sta BUFFER+2
-	; line
-	lda <SCROLL_LINES_TARGET
-	sta BUFFER+3
-	lda <SCROLL_LINES_TARGET+1
-	sta BUFFER+4
-	lda <LAST_STARTED_SAVE
-	sta BUFFER+5
-	lda <STATE_CELL_NEXT
-	sta COPY_DEST_ADDR
-	clc
-	adc #8
-	sta <STATE_CELL_NEXT
-	lda <STATE_CELL_NEXT+1
-	sta COPY_DEST_ADDR+1
-	adc #0
-	sta <STATE_CELL_NEXT+1
-	lda <SAVES_BANK
-	sta <NROM_BANK_L ; storing saves bank number
-	lda #$FF
-	sta <NROM_BANK_H ; at the very end of flash memory
-	ldx #6; 6 bytes
-	jsr flash_write
-	rts
+  lda #0
+  sta BUFFER ; marker
+  ; last started game
+  lda <SELECTED_GAME
+  sta BUFFER+1
+  lda <SELECTED_GAME+1
+  sta BUFFER+2
+  ; line
+  lda <SCROLL_LINES_TARGET
+  sta BUFFER+3
+  lda <SCROLL_LINES_TARGET+1
+  sta BUFFER+4
+  lda <LAST_STARTED_SAVE
+  sta BUFFER+5
+  lda <STATE_CELL_NEXT
+  sta COPY_DEST_ADDR
+  clc
+  adc #8
+  sta <STATE_CELL_NEXT
+  lda <STATE_CELL_NEXT+1
+  sta COPY_DEST_ADDR+1
+  adc #0
+  sta <STATE_CELL_NEXT+1
+  lda <SAVES_BANK
+  sta <NROM_BANK_L ; storing saves bank number
+  lda #$FF
+  sta <NROM_BANK_H ; at the very end of flash memory
+  ldx #6; 6 bytes
+  jsr flash_write
+  rts
 
 load_state:
-	.if USE_FLASH_WRITING=0
-	rts
-	.endif
+  .if USE_FLASH_WRITING=0
+  rts
+  .endif
   ; detect flash memory type
   jsr flash_detect
-	lda <FLASH_TYPE
-	beq .end
-	lda BUTTONS
-	cmp #$5C ; Up+Left+Select+Start = full erase
-	bne .no_force_erase
-	jsr flash_force_erase
-	rts
+  lda <FLASH_TYPE
+  beq .end
+  lda BUTTONS
+  cmp #$5C ; Up+Left+Select+Start = full erase
+  bne .no_force_erase
+  jsr flash_force_erase
+  rts
 .no_force_erase:
-	jsr find_saves_bank ; checks for saves bank
-	beq .end ; no saves bank?
-	sta <NROM_BANK_L ; storing saves bank number
-	lda #$FF
-	sta <NROM_BANK_H ; at the very end of flash memory
-	jsr flash_find_empty_cell ; searching for first empty cell
-	lda <STATE_CELL_NEXT+1
-	cmp #$80
-	bne .state_exists
-	lda <STATE_CELL_NEXT
-	cmp #$20
-	bne .state_exists
-	jmp .end ; if it's at the very beginning ($8020), there is no saved status
+  jsr find_saves_bank ; checks for saves bank
+  beq .end ; no saves bank?
+  sta <NROM_BANK_L ; storing saves bank number
+  lda #$FF
+  sta <NROM_BANK_H ; at the very end of flash memory
+  jsr flash_find_empty_cell ; searching for first empty cell
+  lda <STATE_CELL_NEXT+1
+  cmp #$80
+  bne .state_exists
+  lda <STATE_CELL_NEXT
+  cmp #$20
+  bne .state_exists
+  jmp .end ; if it's at the very beginning ($8020), there is no saved status
 .state_exists:
-	lda <STATE_CELL_NEXT
-	sec
-	sbc #8
-	sta COPY_SOURCE_ADDR
-	lda <STATE_CELL_NEXT+1
-	sbc #0
-	sta COPY_SOURCE_ADDR+1
-	ldx #8
-	jsr flash_read ; loading 8 bytes of data
+  lda <STATE_CELL_NEXT
+  sec
+  sbc #8
+  sta COPY_SOURCE_ADDR
+  lda <STATE_CELL_NEXT+1
+  sbc #0
+  sta COPY_SOURCE_ADDR+1
+  ldx #8
+  jsr flash_read ; loading 8 bytes of data
   .if ENABLE_LAST_GAME_SAVING!=0
-	; loading last started game
-	lda BUFFER+1
-	sta <SELECTED_GAME
-	lda BUFFER+2
-	sta <SELECTED_GAME+1
-	; check for overflow
-	lda <SELECTED_GAME
-	sec
-	sbc #GAMES_COUNT & $FF
-	lda <SELECTED_GAME+1
-	sbc #(GAMES_COUNT >> 8) & $FF
-	bcs .ovf
-	lda BUFFER+3
-	sta <SCROLL_LINES_TARGET
-	lda BUFFER+4
-	sta <SCROLL_LINES_TARGET+1
+  ; loading last started game
+  lda BUFFER+1
+  sta <SELECTED_GAME
+  lda BUFFER+2
+  sta <SELECTED_GAME+1
+  ; check for overflow
+  lda <SELECTED_GAME
+  sec
+  sbc #GAMES_COUNT & $FF
+  lda <SELECTED_GAME+1
+  sbc #(GAMES_COUNT >> 8) & $FF
+  bcs .ovf
+  lda BUFFER+3
+  sta <SCROLL_LINES_TARGET
+  lda BUFFER+4
+  sta <SCROLL_LINES_TARGET+1
   .else
   lda #0
   sta <SELECTED_GAME
@@ -115,59 +115,59 @@ load_state:
   .endif
   ; loading last save ID
   lda BUFFER+5
-	sta <LAST_STARTED_SAVE
-	beq .end
-	; maybe it's time to clean flash?
-	lda <STATE_CELL_NEXT+1
-	cmp #$1F
-	bne .clean_not_required
-	jsr saving_warning_show
-	jsr flash_cleanup
-	jsr saving_warning_hide
+  sta <LAST_STARTED_SAVE
+  beq .end
+  ; maybe it's time to clean flash?
+  lda <STATE_CELL_NEXT+1
+  cmp #$1F
+  bne .clean_not_required
+  jsr saving_warning_show
+  jsr flash_cleanup
+  jsr saving_warning_hide
 .clean_not_required:
-	jsr save_last_game
+  jsr save_last_game
 .end:
-	rts
+  rts
 .ovf:
-	; the very first game
-	lda #0
-	sta <SELECTED_GAME
-	sta <SELECTED_GAME+1
-	rts
+  ; the very first game
+  lda #0
+  sta <SELECTED_GAME
+  sta <SELECTED_GAME+1
+  rts
 
 save_last_game:
-	jsr saving_warning_show
+  jsr saving_warning_show
 .save_last_game_again:
-	lda <SAVES_BANK
-	sta <NROM_BANK_L ; storing saves bank number
-	lda #$FF
-	sta <NROM_BANK_H ; at the very end of flash memory
-	lda #$10
-	sta COPY_SOURCE_ADDR ;$8010
-	lda #$80
-	sta COPY_SOURCE_ADDR+1
-	ldx #16
-	jsr flash_read ; reading 16 bytes to buffer
-	; searching for free slot
-	lda #$FF
-	ldx #1
+  lda <SAVES_BANK
+  sta <NROM_BANK_L ; storing saves bank number
+  lda #$FF
+  sta <NROM_BANK_H ; at the very end of flash memory
+  lda #$10
+  sta COPY_SOURCE_ADDR ;$8010
+  lda #$80
+  sta COPY_SOURCE_ADDR+1
+  ldx #16
+  jsr flash_read ; reading 16 bytes to buffer
+  ; searching for free slot
+  lda #$FF
+  ldx #1
 .loop:
-	cmp BUFFER, x
-	beq .found
-	inx
-	cpx #16
-	bne .loop
-	jsr flash_cleanup  ; not found, cleanup
-	jmp .save_last_game_again ; repeast
+  cmp BUFFER, x
+  beq .found
+  inx
+  cpx #16
+  bne .loop
+  jsr flash_cleanup  ; not found, cleanup
+  jmp .save_last_game_again ; repeast
 .found:
-	txa
-	pha  ; storing save slot number
-	clc
-	adc #$10
-	sta COPY_DEST_ADDR
-	lda #$80
-	sta COPY_DEST_ADDR+1
-	lda <LAST_STARTED_SAVE
+  txa
+  pha  ; storing save slot number
+  clc
+  adc #$10
+  sta COPY_DEST_ADDR
+  lda #$80
+  sta COPY_DEST_ADDR+1
+  lda <LAST_STARTED_SAVE
   sta BUFFER
   ldx #1
   jsr flash_write

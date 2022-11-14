@@ -4,6 +4,10 @@ STATE_CELL_NEXT .rs 2 ; address of cell for next state save
 flash_detect:
   lda #0
   sta <FLASH_TYPE
+  .if USE_FLASH_WRITING
+  ; reset flash
+  lda #$F0
+  sta $8000
   ; enter flash CFI mode
   lda #$98
   sta $8AAA
@@ -22,6 +26,7 @@ flash_detect:
 .end:
   lda #$F0
   sta $8000
+  .endif
   jmp flash_return
 
   ; NROM_BANK_L, NROM_BANK_H - bank
@@ -92,6 +97,10 @@ flash_read:
   bne .loop
   jmp flash_return
 
+  ; read 8 kilabytes of flash to PRG RAM... and RAM
+  ; we can't set highest bit of 0x6003 to 1
+  ; so it's a bit complicated code with storing 
+  ; each 32th bit to RAM
 flash_load_prg_ram:
   ldx #$00
   stx COPY_DEST_ADDR
