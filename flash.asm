@@ -72,9 +72,9 @@ flash_write:
   lda BUFFER, y
   sta [COPY_DEST_ADDR], y
 .wait:
-  cmp BUFFER, y
+  cmp [COPY_DEST_ADDR], y
   bne .wait
-  cmp BUFFER, y
+  cmp [COPY_DEST_ADDR], y
   bne .wait
   iny
   dex

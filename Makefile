@@ -10,7 +10,7 @@ OFFSETS ?=     offsets_$(GAMES).json
 UNIF ?=        multirom_$(GAMES).unf
 NES20 ?=       multirom_$(GAMES).nes
 BIN? =         multirom_$(GAMES).bin
-NESASM_OPTS += $(NESASM_EXTRA_OPTS)
+NESASM_OPTS += $(NESASM_EXTRA_OPTS) --symbols=$(NES20) --symbols-offset=24
 
 SOURCES =      menu.asm banking.asm buildinfo.asm buttons.asm flash.asm loader.asm misc.asm preloader.asm saves.asm sounds.asm tests.asm video.asm
 CONFIGS_DIR =  configs
