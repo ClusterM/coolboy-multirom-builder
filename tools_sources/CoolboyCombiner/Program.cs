@@ -153,7 +153,7 @@ namespace com.clusterrr.Famicom.CoolBoy
                     int saveId = 0;
                     foreach (var game in sortedGames)
                     {
-                        if (game.Battery)
+                        if (config.Saves && game.Battery)
                         {
                             saveId++;
                             game.SaveId = (byte)saveId;
