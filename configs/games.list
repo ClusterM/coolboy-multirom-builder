@@ -16,6 +16,7 @@ demos/Unchained_Nostalgia.nes | ?
 - | - DEMOS -
 ; Just pathes to ROMs
 demos/after_dark.nes | AFTER DARK
+demos/bad_apple_2.nes | BAD APPLE
 
 - | - GAMES -
 ; Use tailing "/" to add the whole directory
