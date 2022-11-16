@@ -1,6 +1,8 @@
 SAVES_BANK .rs 1 ; bank with saves
 LAST_STARTED_SAVE .rs 1 ; last used save ID
 
+CLEAN_AFTER .equ 128
+
   ; saving last selected game
 save_state:
   .if USE_FLASH_WRITING=0
@@ -95,13 +97,6 @@ load_state:
   sta <SELECTED_GAME
   lda BUFFER+2
   sta <SELECTED_GAME+1
-  ; check for overflow
-  lda <SELECTED_GAME
-  sec
-  sbc #GAMES_COUNT & $FF
-  lda <SELECTED_GAME+1
-  sbc #(GAMES_COUNT >> 8) & $FF
-  bcs .ovf
   lda BUFFER+3
   sta <SCROLL_LINES_TARGET
   lda BUFFER+4
@@ -116,27 +111,24 @@ load_state:
   ; loading last save ID
   lda BUFFER+5
   sta <LAST_STARTED_SAVE
-  beq .end
+  ;beq .end
   ; maybe it's time to clean flash?
   lda <STATE_CELL_NEXT+1
-  cmp #$1F
-  bne .clean_not_required
+  cmp #$80 + (CLEAN_AFTER / ($100 / 8)) ; 32 saves per 256 bytes
+  bcc .clean_not_required
   jsr saving_warning_show
   jsr flash_cleanup
-  jsr saving_warning_hide
 .clean_not_required:
+  lda <LAST_STARTED_SAVE
+  beq .save_last_game_not_required
+  jsr saving_warning_show
   jsr save_last_game
+.save_last_game_not_required:
+  jsr saving_warning_hide
 .end:
-  rts
-.ovf:
-  ; the very first game
-  lda #0
-  sta <SELECTED_GAME
-  sta <SELECTED_GAME+1
   rts
 
 save_last_game:
-  jsr saving_warning_show
 .save_last_game_again:
   lda <SAVES_BANK
   sta <NROM_BANK_L ; storing saves bank number
@@ -157,8 +149,8 @@ save_last_game:
   inx
   cpx #16
   bne .loop
-  jsr flash_cleanup  ; not found, cleanup
-  jmp .save_last_game_again ; repeast
+  jsr flash_cleanup ; not found, cleanup
+  jmp .save_last_game_again ; repeat
 .found:
   txa
   pha  ; storing save slot number
@@ -192,7 +184,6 @@ save_last_game:
   lda #0
   sta <LAST_STARTED_SAVE
   jsr write_state
-  jsr saving_warning_hide
   rts
 
 find_saves_bank:

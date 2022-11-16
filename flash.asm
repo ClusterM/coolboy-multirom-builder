@@ -1,5 +1,5 @@
 FLASH_TYPE .rs 1 ; flash memory type
-STATE_CELL_NEXT .rs 2 ; address of cell for next state save
+STATE_CELL_NEXT .rs 2 ; address of the cell for next state save
 
 flash_detect:
   lda #0
@@ -97,7 +97,7 @@ flash_read:
   bne .loop
   jmp flash_return
 
-  ; read 8 kilabytes of flash to PRG RAM... and RAM
+  ; read 8 kilobytes of flash to PRG RAM... and RAM
   ; we can't set highest bit of 0x6003 to 1
   ; so it's a bit complicated code with storing 
   ; each 32th bit to RAM
