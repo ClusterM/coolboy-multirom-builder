@@ -31,7 +31,9 @@ loader:
 
   ; PRG RAM fix
   ; mapper registers are locked now,
-  ; so we can write to highest bit of $6003 now,
+  ; so we can write to the highest bit of $6003 now,
+  lda <LAST_STARTED_SAVE
+  beq .prg_ram_end
   lda #$80
   sta $A001 ; enable PRG-RAM
   lda #$00
@@ -61,6 +63,11 @@ loader:
   inc <COPY_DEST_ADDR+1
   bpl .prg_ram_loop
   sty $A001 ; disable PRG RAM
+.prg_ram_end:
+  ; check if game using MMC3 mapper
+  lda LOADER_REG_3
+  and #%00010000
+  bne .not_mmc3
   ldx #$06
   ldy #$00
   stx $8000 ; init MMC3 (required by some games and ports)
@@ -69,7 +76,9 @@ loader:
   stx $8000
   iny
   sty $8001
+  .not_mmc3:
   jmp .end_of_memory
+
   ; dirty trick :)
 .end_of_loader:
   .org $07E0

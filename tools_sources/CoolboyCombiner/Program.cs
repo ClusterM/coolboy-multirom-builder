@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Text;
+using System.Net.Sockets;
 
 namespace com.clusterrr.Famicom.CoolBoy
 {
@@ -271,7 +272,6 @@ namespace com.clusterrr.Famicom.CoolBoy
 
                     if (games.Count - hiddenCount == 0)
                         throw new InvalidOperationException("Games list is empty");
-
 
                     regs["reg_0"] = new List<string>();
                     regs["reg_1"] = new List<string>();
@@ -703,12 +703,15 @@ namespace com.clusterrr.Famicom.CoolBoy
 
         static bool WillFit(byte[] dest, int pos, byte[] source, HashSet<int> badSectors)
         {
-            if (pos >= LOADER_OFFSET && pos < LOADER_OFFSET + LOADER_SIZE)
-                return false;
-            if ((badSectors != null) && badSectors.Contains(pos / FLASH_SECTOR_SIZE))
-                return false;
             for (int addr = pos; addr < pos + source.Length; addr++)
             {
+                if (addr % 0x2000 == 0)
+                {
+                    if ((addr >= LOADER_OFFSET) && (addr < LOADER_OFFSET + LOADER_SIZE))
+                        return false;
+                    if ((badSectors != null) && badSectors.Contains(addr / FLASH_SECTOR_SIZE))
+                        return false;
+                }
                 if (addr >= dest.Length)
                     return false;
                 if ((dest[addr] != byte.MaxValue) && (dest[addr] != source[addr - pos]))
