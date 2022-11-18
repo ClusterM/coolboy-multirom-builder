@@ -1,7 +1,7 @@
 SAVES_BANK .rs 1 ; bank with saves
 LAST_STARTED_SAVE .rs 1 ; last used save ID
 
-CLEAN_AFTER .equ 128
+CLEAN_AFTER .equ 128 ; clean flash after this number of menu states
 
   ; saving last selected game
 save_state:
