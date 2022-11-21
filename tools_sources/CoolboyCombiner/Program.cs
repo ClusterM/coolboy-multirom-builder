@@ -494,8 +494,10 @@ namespace com.clusterrr.Famicom.CoolBoy
                     asmResult.Append(BytesToAsm(StringToTiles("PRESENT", symbols)));
                     asmResult.AppendLine("string_not_available:");
                     asmResult.Append(BytesToAsm(StringToTiles("NOT AVAILABLE", symbols)));
+                    asmResult.AppendLine("string_version:");
+                    asmResult.Append(BytesToAsm(StringToTiles($"VERSION: {Assembly.GetExecutingAssembly()?.GetName()?.Version?.Major}.{ Assembly.GetExecutingAssembly()?.GetName()?.Version?.Minor}", symbols)));
                     asmResult.AppendLine("string_commit:");
-                    asmResult.Append(BytesToAsm(StringToTiles("COMMIT: " + Properties.Resources.gitCommit, symbols)));
+                    asmResult.Append(BytesToAsm(StringToTiles($"COMMIT: {Properties.Resources.gitCommit}", symbols)));
                     switch (config.Language)
                     {
                         case Config.CombinerLanguage.English:
