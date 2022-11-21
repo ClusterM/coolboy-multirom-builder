@@ -686,7 +686,7 @@ namespace com.clusterrr.Famicom.CoolBoy
 #if DEBUG
                     Console.WriteLine($"Error {ex.GetType()}: {ex.Message}{ex.StackTrace}");
 #else
-                    Console.WriteLine($"Error {ex.GetType()}: {ex.Message}");
+                    Console.WriteLine($"Error: {ex.Message}");
 #endif
                 }
                 return 2;
@@ -696,7 +696,7 @@ namespace com.clusterrr.Famicom.CoolBoy
 #if DEBUG
                 Console.WriteLine($"Error {ex.GetType()}: {ex.Message}{ex.StackTrace}");
 #else
-                Console.WriteLine($"Error {ex.GetType()}: {ex.Message}");
+                Console.WriteLine($"Error: {ex.Message}");
 #endif
                 return 2;
             }
