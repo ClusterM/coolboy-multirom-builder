@@ -7,6 +7,11 @@ using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Text;
 using System.Net.Sockets;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading;
 
 namespace com.clusterrr.Famicom.CoolBoy
 {
