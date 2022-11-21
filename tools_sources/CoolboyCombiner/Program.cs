@@ -1,16 +1,15 @@
 ﻿using com.clusterrr.Famicom.Containers;
 using com.clusterrr.Famicom.Multirom;
 using com.clusterrr.Tools;
-using System.Diagnostics;
-using System.Reflection;
-using System.Text.Json.Serialization;
-using System.Text.Json;
-using System.Text;
-using System.Net.Sockets;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 
 namespace com.clusterrr.Famicom.CoolBoy
@@ -500,7 +499,7 @@ namespace com.clusterrr.Famicom.CoolBoy
                     asmResult.AppendLine("string_not_available:");
                     asmResult.Append(BytesToAsm(StringToTiles("NOT AVAILABLE", symbols)));
                     asmResult.AppendLine("string_version:");
-                    asmResult.Append(BytesToAsm(StringToTiles($"VERSION: {Assembly.GetExecutingAssembly()?.GetName()?.Version?.Major}.{ Assembly.GetExecutingAssembly()?.GetName()?.Version?.Minor}", symbols)));
+                    asmResult.Append(BytesToAsm(StringToTiles($"VERSION: {Assembly.GetExecutingAssembly()?.GetName()?.Version?.Major}.{Assembly.GetExecutingAssembly()?.GetName()?.Version?.Minor}", symbols)));
                     asmResult.AppendLine("string_commit:");
                     asmResult.Append(BytesToAsm(StringToTiles($"COMMIT: {Properties.Resources.gitCommit}", symbols)));
                     switch (config.Language)
