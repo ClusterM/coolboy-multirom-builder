@@ -104,6 +104,11 @@ namespace com.clusterrr.Famicom.Multirom
                     PRG = nesFile.PRG;
                     if (nesFile.Mapper != 0)
                     {
+                        // Round up to power of 2
+                        var pow = (int)Math.Ceiling(Math.Log(PRG.Length, 2));
+                        var upSize = (int)Math.Pow(2, pow);
+                        if (upSize - PRG.Length > 0)
+                            PRG = Enumerable.Concat(PRG, Enumerable.Repeat(byte.MaxValue, upSize - PRG.Length)).ToArray();
                         // Enlarge to at least 128K
                         while (PRG.Length < 128 * 1024) // TODO: other enlarge methods
                             PRG = Enumerable.Concat(PRG, PRG).ToArray();
