@@ -104,14 +104,9 @@ namespace com.clusterrr.Famicom.Multirom
                     PRG = nesFile.PRG;
                     if (nesFile.Mapper != 0)
                     {
-                        // Enlarge to at lease 128K
+                        // Enlarge to at least 128K
                         while (PRG.Length < 128 * 1024) // TODO: other enlarge methods
-                        {
-                            var newPrg = new byte[PRG.Length * 2];
-                            Array.Copy(PRG, 0, newPrg, 0, PRG.Length);
-                            Array.Copy(PRG, 0, newPrg, PRG.Length, PRG.Length);
-                            PRG = newPrg;
-                        }
+                            PRG = Enumerable.Concat(PRG, PRG).ToArray();
                     }
                     CHR = nesFile.CHR;
                     Battery = nesFile.Battery;

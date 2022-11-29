@@ -666,9 +666,12 @@ namespace com.clusterrr.Famicom.CoolBoy
                         nes.CHR = Array.Empty<byte>();
                         nes.Mapper = 268;
                         nes.Submapper = (byte)(!config.Mindkids ? 0 : 1);
-                        nes.PrgNvRamSize = 8 * 1024;
+                        if (config.Saves)
+                            nes.PrgNvRamSize = 8 * 1024;
+                        else
+                            nes.PrgRamSize = 8 * 1024;
                         nes.ChrRamSize = config.MaxChrRamSizeKB * 1024;
-                        nes.Battery = config.Saves; // Actually, not supported by any emulator
+                        nes.Battery = config.Saves; // Actually, not supported by any emulator... yet
                         nes.Save(config.Nes20File);
                         Console.WriteLine("OK");
                     }
