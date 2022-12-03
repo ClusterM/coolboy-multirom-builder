@@ -162,6 +162,11 @@ Alternative method (easier and faster):
 2. Create a text file with a list of files and/or directories with the ROMs, optionally you can specify game names for corresponding menu entries.
 3. Run **coolboy-combiner** with "**build**" option, it will automaticaly fit games, compile assembly files using [nesasm CE](https://github.com/ClusterM/nesasm) and combine everything into one file (.nes, .unf or .bin).
 
+## Download
+You can always download the latest version at [https://github.com/ClusterM/coolboy-multirom-builder/releases](https://github.com/ClusterM/coolboy-multirom-builder/releases)
+
+Also, you can download automatic nightly builds in GitHub Actions Artifacts: [https://github.com/ClusterM/coolboy-multirom-builder/actions](https://github.com/ClusterM/coolboy-multirom-builder/actions)
+
 ## Donate
 https://www.donationalerts.com/r/clustermeerkat
 
