@@ -76,8 +76,8 @@ Possible options:
 * **OUTPUT_BIN** - use as `OUTPUT_BIN=output.bin` - output .bin file for **bin** target
 * **CONFIGS_DIR** - use as `CONFIGS_DIR=configs` - directory with game list files, default is "configs"
 * **MINDKIDS** - use as `MINDKIDS=1` - use MINDKIDS mapper (mapper 268, submapper 1) instead of COOLBOY (mapper 268, submapper 0), e.g. use registers as $5xxx instead of $6xxx, default is `MINDKIDS=0`
-* **SAVES** - use as `SAVES=1` - use self-writable flash memory to store game saves and remember last selected game if supported, default is `SAVES=0`, see ["about flash saving system" section](README.md#about-flash-saving-system)
-* **ENABLE_LAST_GAME_SAVING**  - use as `ENABLE_LAST_GAME_SAVING=1` - remember last played game, works only with `SAVES=1` and self-writable flash memory, default is `ENABLE_LAST_GAME_SAVING=1`
+* **ENABLE_SAVES** - use as `ENABLE_SAVES=1` - use self-writable flash memory to store game saves and remember last selected game if supported, default is `ENABLE_SAVES=0`, see ["about flash saving system" section](README.md#about-flash-saving-system)
+* **ENABLE_LAST_GAME_SAVING**  - use as `ENABLE_LAST_GAME_SAVING=1` - remember last played game, works only with `ENABLE_SAVES=1` and self-writable flash memory, default is `ENABLE_LAST_GAME_SAVING=1`
 * **NOSORT** - use as `NOSORT=1` - disable automatic alphabetically game sorting, default is `NOSORT=0`
 * **BADSECTORS** - use as `BADSECTORS=0,5,10` - specify list of bad sectors if you need to write cartridge with bad flash memory, default is none
 * **REPORT** - use as `REPORT=report.txt` - specify file for human-readable build report, default is none
@@ -94,11 +94,11 @@ Possible options:
 #### Examples
 Enable saves using self-writable flash memory:
 
-`make nes GAMES=games.list SAVES=1`
+`make nes GAMES=games.list ENABLE_SAVES=1`
 
 Or change header image:
 
-`make nes GAMES=games.list SAVES=1 MENU_HEADER=menu_example.png`
+`make nes GAMES=games.list ENABLE_SAVES=1 MENU_HEADER=menu_example.png`
 
 Use $5xxx registers instead of $6xxx and write to output.nes:
 
@@ -147,7 +147,7 @@ Special combinations:
 * Press **Up**, **Up**, **Down**, **Down**, **Left**, **Right**, **Left**, **Right**, **B**, **A** (the Konami code) to start third hidden ROM
 
 ## About flash saving system
-When cartridge with a directly writable flash memory used (/WE and /OE pins are connected to the mapper), it's possible to use this memory as additional storage. If Make started with "SAVES=1" option, the last two sectors of flash memory (256KBytes) will be reserved for it. This memory will be used to store cursor position and progress of "battery-backed" games (even if cartridge has no battery, but you'll need to press reset to save the progress in this case). Please note that flash memory will not be rewritten every time. New data will be writed to free space on active sector marked by signature. When active sector is full, all actual data will be moved to the second one. User will be warned to keep power on.
+When cartridge with a directly writable flash memory used (/WE and /OE pins are connected to the mapper), it's possible to use this memory as additional storage. If Make started with "ENABLE_SAVES=1" option, the last two sectors of flash memory (256KBytes) will be reserved for it. This memory will be used to store cursor position and progress of "battery-backed" games (even if cartridge has no battery, but you'll need to press reset to save the progress in this case). Please note that flash memory will not be rewritten every time. New data will be writed to free space on active sector marked by signature. When active sector is full, all actual data will be moved to the second one. User will be warned to keep power on.
 
 ## In-depth info - how it works
 First method:
