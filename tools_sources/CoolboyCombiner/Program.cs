@@ -550,7 +550,7 @@ namespace com.clusterrr.Famicom.CoolBoy
                         var process = new Process();
                         var cp866 = CodePagesEncodingProvider.Instance.GetEncoding(866) ?? Encoding.ASCII;
                         process.StartInfo.FileName = config.NesAsm;
-                        process.StartInfo.Arguments = $"\"menu.asm\" -r -o - -C \"GAMES_DB={config.AsmFile}\" -D COOLBOY_VERSION={(!config.Mindkids ? 0 : 1)} -D USE_FLASH_WRITING={(!config.Saves ? 0 : 1)}" + config.NesAsmArgs;
+                        process.StartInfo.Arguments = $"\"menu.asm\" -r -o - -C \"GAMES_DB={Path.GetFullPath(config.AsmFile!)}\" -D COOLBOY_VERSION={(!config.Mindkids ? 0 : 1)} -D USE_FLASH_WRITING={(!config.Saves ? 0 : 1)} " + config.NesAsmArgs;
                         process.StartInfo.WorkingDirectory = config.SourcesDir;
                         process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
                         process.StartInfo.UseShellExecute = false;
