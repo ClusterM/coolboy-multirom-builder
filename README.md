@@ -63,6 +63,7 @@ Possible targets:
 * **unif** - build .unf file (UNIF)
 * **bin** - build raw binary file, can be used with flash memory programmer
 * **all** - build .nes, .unf and .bin files at once
+* **clean** - remove all temporary and output files
 
 Possible options:
 * **GAMES** - use as `GAMES=games.list` to specify the file with game list, default is "games.list"
@@ -75,7 +76,7 @@ Possible options:
 * **OUTPUT_BIN** - use as `OUTPUT_BIN=output.bin` - output .bin file for **bin** target
 * **CONFIGS_DIR** - use as `CONFIGS_DIR=configs` - directory with game list files, default is "configs"
 * **MINDKIDS** - use as `MINDKIDS=1` - use MINDKIDS mapper (mapper 268, submapper 1) instead of COOLBOY (mapper 268, submapper 0), e.g. use registers as $5xxx instead of $6xxx, default is `MINDKIDS=0`
-* **SAVES** - use as `SAVES=1` - use self-writable flash memory to store game saves and remember last selected game if supported, default is `SAVES=0`
+* **SAVES** - use as `SAVES=1` - use self-writable flash memory to store game saves and remember last selected game if supported, default is `SAVES=0`, see ["about flash saving system" section](README.md#about-flash-saving-system)
 * **ENABLE_LAST_GAME_SAVING**  - use as `ENABLE_LAST_GAME_SAVING=1` - remember last played game, works only with `SAVES=1` and self-writable flash memory, default is `ENABLE_LAST_GAME_SAVING=1`
 * **NOSORT** - use as `NOSORT=1` - disable automatic alphabetically game sorting, default is `NOSORT=0`
 * **BADSECTORS** - use as `BADSECTORS=0,5,10` - specify list of bad sectors if you need to write cartridge with bad flash memory, default is none
@@ -108,11 +109,24 @@ Save output ROM as UNIF file:
 `make unif GAMES=games.list OUTPUT_UNIF=output.unf`
 
 ## Which games are supported
-COOLBOY supports games with **NROM** (mapper #0) and **MMC3** (mapper #4) mappers only. NROM is used by simple games without any mapper and MMC3 is the most popular mapper, so games support is good but not perfect. Also most non-MMC3 games can be patched to run on MMC3 mapper without any problem. Also, make sure that PRG RAM and CHR size requirements are met ().
+COOLBOY supports games with **NROM** (mapper #0) and **MMC3** (mapper #4) mappers only. NROM is used by simple games without any mapper and MMC3 is the most popular mapper, so games support is good but not perfect. Also most non-MMC3 games can be patched to run on MMC3 mapper without any problem. Also, make sure that PRG RAM and CHR size requirements are met (see ["supported cartridges" section below](README.md#which-cartridges-are-supported-how-to-select-which-cartridge-to-buy)).
 
 And one more thing with some weird buggy games. COOLBOY always uses writable CHR RAM even original game uses CHR ROM and it has not 'read-only' mode. So if game with CHR ROM writes to ROM for some weird reason, CHR data will be corrupted. It can be fixed using ROM patches. Example game: Cowboy Kid.
 
 Also, please note that PRG RAM is not working correctly on *original* Famicoms and AV Famicoms without additional cartridge hardware modification.
+
+## Which cartridges are supported, how to select which cartridge to buy
+There are many versions of COOLBOY cartridges and clones. Actually most of them are not "COOLBOY", it's just a name of the first cartridges with this chip.
+
+You can find modifications:
+* **With a different CHR size**. Some cartridges has only 128KB of RAM for CHR data and some 256KB. So 128KB version can't run many cool games with CHR size >128KB. You can easily detect amount of CHR RAM after looking at games list. If it has at least one game with large CHR, cartridge has 256KB. Example games: Megaman/Rockman 5, Earthbound Zero, Kirby's Adventure
+* **With a different flash size**. Most cartridges has 32MBytes of flash memory but it's possible to find much more rare cartridges with less memory size. 32MBytes is maximum available size.
+* **With and without additional PRG RAM chip**. It's required by some games like The Legend of Zelda, Jurassic Park, etc. So if cartridge contains those games, it has PRG RAM chip. Also, it's possible to solder this chip manually usually.
+* **With and without battery**. Battery is used to keep data in PRG RAM chip even after console is turned off. It's used to save games progress. So if cartridge has battery, it also has PRG-RAM chip. There is no way to detect present of battery but usually seller can say it, also check product description in shop.
+* **With a directly writable and non-writable flash memory**. Some new cartridges can be rewrited directly without additional soldering and some not. Direct rewrite will allow you not only rewrite cartridge's flash memory using very simple way but it will also allow to keep many game saves in cartridge's memory (if PRG RAM chip exists). Originally game's progress will be erased if any other game started that uses PRG RAM even if battery present. There is no way to know which cartridge has this feature but seems like it's all cartridges produced by "MINDKIDS". So if you can look at cartridge's board, check it for "MINDKIDS" label.
+* **With a different register addresses**. Most cartridges has registers at $600x addresses but some cartridges has them at $500x. This toolset supports both versions, so you don't need to care about it.
+
+So it's recommended to search for MINDKIDS cartridges with battery.
 
 ## Using the loader menu
 Buttons:
@@ -134,19 +148,6 @@ Special combinations:
 
 ## About flash saving system
 When cartridge with a directly writable flash memory used (/WE and /OE pins are connected to the mapper), it's possible to use this memory as additional storage. If Make started with "SAVES=1" option, the last two sectors of flash memory (256KBytes) will be reserved for it. This memory will be used to store cursor position and progress of "battery-backed" games (even if cartridge has no battery, but you'll need to press reset to save the progress in this case). Please note that flash memory will not be rewritten every time. New data will be writed to free space on active sector marked by signature. When active sector is full, all actual data will be moved to the second one. User will be warned to keep power on.
-
-## Which cartridges are supported, how to select which cartridge to buy
-There are many versions of COOLBOY cartridges and clones. Actually most of them are not "COOLBOY", it's just a name of the first cartridges with this chip.
-
-You can find modifications:
-* **With a different CHR size**. Some cartridges has only 128KB of RAM for CHR data and some 256KB. So 128KB version can't run many cool games with CHR size >128KB. You can easily detect amount of CHR RAM after looking at games list. If it has at least one game with large CHR, cartridge has 256KB. Example games: Megaman/Rockman 5, Earthbound Zero, Kirby's Adventure
-* **With a different flash size**. Most cartridges has 32MBytes of flash memory but it's possible to find much more rare cartridges with less memory size. 32MBytes is maximum available size.
-* **With and without additional PRG RAM chip**. It's required by some games like The Legend of Zelda, Jurassic Park, etc. So if cartridge contains those games, it has PRG RAM chip. Also, it's possible to solder this chip manually usually.
-* **With and without battery**. Battery is used to keep data in PRG RAM chip even after console is turned off. It's used to save games progress. So if cartridge has battery, it also has PRG-RAM chip. There is no way to detect present of battery but usually seller can say it, also check product description in shop.
-* **With a directly writable and non-writable flash memory**. Some new cartridges can be rewrited directly without additional soldering and some not. Direct rewrite will allow you not only rewrite cartridge's flash memory using very simple way but it will also allow to keep many game saves in cartridge's memory (if PRG RAM chip exists). Originally game's progress will be erased if any other game started that uses PRG RAM even if battery present. There is no way to know which cartridge has this feature but seems like it's all cartridges produced by "MINDKIDS". So if you can look at cartridge's board, check it for "MINDKIDS" label.
-* **With a different register addresses**. Most cartridges has registers at $600x addresses but some cartridges has them at $500x. This toolset supports both versions, so you don't need to care about it.
-
-So it's recommended to search for MINDKIDS cartridges with battery.
 
 ## In-depth info - how it works
 First method:
