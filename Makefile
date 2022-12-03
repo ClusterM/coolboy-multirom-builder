@@ -1,7 +1,7 @@
 GAMES ?=        games.list
 MENU_IMAGE ?=   menu_header.png
 LANGUAGE ?=     eng
-SIZE ?=         128
+SIZE ?=         32
 MAXCHRSIZE?=    256
 DUMPER_OPTS ?=  --port auto
 NESASM_EXTRA_OPTS ?=
