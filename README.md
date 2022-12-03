@@ -12,6 +12,8 @@ It can:
 * Add up to three hidden ROMs
 * Run on Windows (x64), Linux (x64, ARM, ARM64) and macOS (x64)
 
+.NET 6.0 is required. You need to either install the [.NET 6.0 Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) framework or to use the self-contained version.
+
 ## How to build a ROM
 This package contains multiple tools which need to run sequentially. There is Makefile, so you can use [Make](https://www.gnu.org/software/make/) tool to automatize the whole process. This is the most simple way. Windows users can use [msys2](https://www.msys2.org/) to install and run Make or just run build.bat (not customizable, not recommended).
 
