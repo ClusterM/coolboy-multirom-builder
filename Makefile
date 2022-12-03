@@ -29,7 +29,7 @@ ifneq ($(MINDKIDS),0)
 MINDKIDS_OPTION=--mindkids
 endif
 
-SAVES ?= 0
+ENABLE_SAVES ?= 0
 ifneq ($(SAVES),0)
 SAVES_OPTION=--saves
 endif
