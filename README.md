@@ -1,6 +1,8 @@
 # COOLBOY Multirom Builder
 This is a toolset that allows you to create multirom images for the AA6023 ASICs mapper which used into cheap COOLBOY/MINDKIDS (and clones) Famicom cartridges (mappers 268.0 and 268.1). This ROM can be run on a emulator or written to a real hardware.
 
+![Loader menu](https://user-images.githubusercontent.com/4236181/205486564-f5cfbe38-adcb-4574-8b9f-16e534052a8d.gif)
+
 It can:
 * Automatically combine up to 1536 games into single binary which can be written to a cheap COOLBOY cartridge
 * Create nice menu where you can easily select a game
