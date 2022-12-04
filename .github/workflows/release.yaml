@@ -294,6 +294,7 @@ jobs:
       env:
         TAG_REF_NAME: ${{ github.event.repository.updated_at }}
         REPOSITORY_NAME: ${{ github.repository }}
+      shell: msys2 {0}
       run: |
         value=`cat release_url/release_url.txt`
         echo upload_url=$value >> $GITHUB_OUTPUT
