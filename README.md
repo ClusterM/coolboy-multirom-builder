@@ -1,12 +1,12 @@
 # COOLBOY Multirom Builder
-This is a toolset that allows you to create multirom images for the AA6023 ASICs mapper which used into cheap COOLBOY/MINDKIDS (and clones) Famicom cartridges (mappers 268.0 and 268.1). This ROM can be run on a emulator or written to a real hardware.
+This is a toolset that allows you to create multirom images for the AA6023 ASICs mapper which used in a cheap COOLBOY/MINDKIDS (and clones) Famicom cartridges (mappers 268.0 and 268.1). This ROM can be run on a emulator or written to a real hardware.
 
 ![Loader menu](https://user-images.githubusercontent.com/4236181/205486564-f5cfbe38-adcb-4574-8b9f-16e534052a8d.gif)
 
 It can:
 * Automatically combine up to 1536 games into single binary which can be written to a cheap COOLBOY cartridge
 * Create nice menu where you can easily select a game
-* Alphabetically sort games if you need it
+* Alphabetically sort games if need
 * Use your own image for the menu header and other customizations
 * Remember last played game and keep up to 15 saves for "battery-backed" games into flash memory on a self-writable cartridges with PRG-RAM
 * Run a built-in hardware tests
@@ -14,7 +14,7 @@ It can:
 * Add up to three hidden ROMs
 * Run on Windows (x64), Linux (x64, ARM, ARM64) and macOS (x64)
 
-.NET 6.0 is required. You need to either install the [.NET 6.0 Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) framework or to use the self-contained version.
+.NET 6.0 is required. You need to either install the [.NET 6.0 Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) or to use the self-contained version.
 
 ## How to build a ROM
 This package contains multiple tools which need to run sequentially. There is Makefile, so you can use [Make](https://www.gnu.org/software/make/) tool to automatize the whole process. This is the most simple way. Windows users can use [msys2](https://www.msys2.org/) to install and run Make or just run build.bat (not customizable, not recommended).
@@ -26,26 +26,26 @@ It's just a text file. Lines started with semicolon are comments. Other lines ha
 
     <path_to_filename> [| <menu name>]
     
-So each line is a path to a ROM with optional name which will be used in menu. Example:
+So each line is a path to a ROM with optional name which will be used in the menu. Example:
 
     roms/Adventure Island (U) [!].nes | ADVENTURE ISLAND
     roms/Adventure Island II (U) [!].nes | ADVENTURE ISLAND 2
     roms/Adventure Island III (U) [!].nes | ADVENTURE ISLAND 3
 
-Use tailing "/" to add whole directory:
+Use a trailing "/" to add a whole directory:
 
     roms/
     
 If menu name is not specified it will be based on a filename. Maximum length for menu entry is 29 symbols.
 
-You can use "?" symbol as menu name to add hidden ROMs:
+You can use "?" symbol as game name to add hidden ROMs:
 
     spec/sram.nes | ? 
     spec/controller.nes | ? 
 
-First hidden ROM will be started while holding Up+A+B at startup. Second one will be started while holding Down+A+B at start. I'm using it to add some hardware tests. Also you can add third hidden ROM, it will be started using the Konami Code in games menu :)
+First hidden ROM will be started while holding Up+A+B at startup. Second one will be started while holding Down+A+B at startup. I'm using it to add some hardware tests. Also, you can add third hidden ROM, it will be started using the Konami Code in the loader menu :)
 
-All games are alphabetically sorted by default so you don't need to care about games order. But if you are using custom order, you can use "-" symbol to add separators between games:
+All games are alphabetically sorted by default so you don't need to care about game order. But if you are using custom order, you can use "-" symbol to add separators between games:
 
     roms/filename1.nes
     roms/filename2.nes
@@ -113,9 +113,9 @@ Save output ROM as UNIF file:
 `make unif GAMES=games.list OUTPUT_UNIF=output.unf`
 
 ## Which games are supported
-COOLBOY supports games with **NROM** (mapper #0) and **MMC3** (mapper #4) mappers only. NROM is used by simple games without any mapper and MMC3 is the most popular mapper, so games support is good but not perfect. Also most non-MMC3 games can be patched to run on MMC3 mapper without any problem. Also, make sure that PRG RAM and CHR size requirements are met (see ["supported cartridges" section below](README.md#which-cartridges-are-supported-how-to-select-which-cartridge-to-buy)).
+COOLBOY supports games with **NROM** (mapper #0) and **MMC3** (mapper #4) mappers only. NROM is used by simple games without any mapper and MMC3 is the most popular mapper, so games support is good but not perfect. Also, most non-MMC3 games can be patched to run on a MMC3 mapper without any problem. Make sure that PRG RAM and CHR size requirements are met (see ["supported cartridges" section below](README.md#which-cartridges-are-supported-how-to-select-which-cartridge-to-buy)).
 
-And one more thing with some weird buggy games. COOLBOY always uses writable CHR RAM even original game uses CHR ROM and it has not 'read-only' mode. So if game with CHR ROM writes to ROM for some weird reason, CHR data will be corrupted. It can be fixed using ROM patches. Example game: Cowboy Kid.
+And one more thing about some weird buggy games. COOLBOY always uses writable CHR RAM even original game uses CHR ROM and it has not 'read-only' mode. So if game with CHR ROM writes to a ROM for some weird reason, CHR data will be corrupted. It can be fixed using ROM patches. Example game: Cowboy Kid.
 
 Also, please note that PRG RAM is not working correctly on *original* Famicoms and AV Famicoms without additional cartridge hardware modification.
 
@@ -143,11 +143,10 @@ Buttons:
 * **B** - not used
 
 Special combinations:
-* Hold **Select** on start to show some build and hardware info
-* Hold **Select**+**A**+**B** on start RAM tests, it will test PRG RAM and 256KB of CHR data
-* Hold **Left**+**Up**+**Select**+**Start** on start to erase all saved data
-* Hold **Up**+**A**+**B** on start to start first hidden ROM
-* Hold **Down**+**A**+**B** on start to start second hidden ROM
+* Hold **Select** on startup to show some build and hardware info
+* Hold **Select**+**A**+**B** on startup to run RAM tests, it will test PRG RAM and 256KB of CHR data
+* Hold **Up**+**A**+**B** on startup to start first hidden ROM
+* Hold **Down**+**A**+**B** on startup to start second hidden ROM
 * Press **Up**, **Up**, **Down**, **Down**, **Left**, **Right**, **Left**, **Right**, **B**, **A** (the Konami code) to start third hidden ROM
 
 ## About flash saving system
