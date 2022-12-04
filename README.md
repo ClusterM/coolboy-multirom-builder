@@ -19,7 +19,7 @@ It can:
 ## How to build a ROM
 This package contains multiple tools which need to run sequentially. There is Makefile, so you can use [Make](https://www.gnu.org/software/make/) tool to automatize the whole process. This is the most simple way. Windows users can use [msys2](https://www.msys2.org/) to install and run Make or just run build.bat (not customizable, not recommended).
 
-But you need to create game list first.
+But you need to create game list and save it to "configs" directory first.
 
 ### Game list format
 It's just a text file. Lines started with semicolon are comments. Other lines has format:
@@ -112,7 +112,7 @@ Save output ROM as UNIF file:
 
 `make unif GAMES=games.list OUTPUT_UNIF=output.unf`
 
-## Which games are supported
+## Games compatibility
 COOLBOY supports games with **NROM** (mapper #0) and **MMC3** (mapper #4) mappers only. NROM is used by simple games without any mapper and MMC3 is the most popular mapper, so games support is good but not perfect. Also, most non-MMC3 games can be patched to run on a MMC3 mapper without any problem. Make sure that PRG RAM and CHR size requirements are met (see ["supported cartridges" section below](README.md#which-cartridges-are-supported-how-to-select-which-cartridge-to-buy)).
 
 And one more thing about some weird buggy games. COOLBOY always uses writable CHR RAM even original game uses CHR ROM and it has not 'read-only' mode. So if game with CHR ROM writes to a ROM for some weird reason, CHR data will be corrupted. It can be fixed using ROM patches. Example game: Cowboy Kid.
