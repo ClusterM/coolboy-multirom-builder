@@ -580,12 +580,12 @@ namespace com.clusterrr.Famicom.CoolBoy
                         if (process.ExitCode != 0)
                         {
                             Console.WriteLine(string.Join("", stdout));
-                            throw new InvalidOperationException($"nesasm returned error code {process.ExitCode}");
+                            throw new InvalidOperationException($"nesasm returned error code {process.ExitCode}. Args: {process.StartInfo.Arguments}");
                         }
 
                         var loader = cp866.GetBytes(stdout.ToArray());
                         if (!loader.Any())
-                            throw new InvalidDataException("nesasm returned empty data, maybe version is too old?");
+                            throw new InvalidDataException($"nesasm returned empty data, maybe version is too old?. Args: {process.StartInfo.Arguments}");
                         Array.Copy(loader, 0, result, LOADER_OFFSET, loader.Length);
                         Console.WriteLine("OK");
                     }
