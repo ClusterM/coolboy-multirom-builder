@@ -1,0 +1,298 @@
+name: Build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  create-release: 
+    runs-on: ubuntu-latest
+    steps:
+    - name: Create Release
+      id: create_release
+      uses: ncipollo/release-action@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        tag: ${{ github.event.repository.updated_at }}
+        commit: ${{ github.head_ref || github.ref_name }} 
+        name: Release ${{ github.event.repository.updated_at }}
+        draft: true
+    - name: Output Release URL File
+      run: echo "${{ steps.create_release.outputs.upload_url }}" > release_url.txt
+    - name: Save Release URL File for publish
+      uses: actions/upload-artifact@v3
+      with:
+        name: release_url
+        path: release_url.txt
+
+  build-linux:
+    needs: create-release
+    strategy:
+      matrix:
+        sc: [no-self-contained, self-contained]
+    runs-on: ubuntu-latest
+    env:
+      APP_NAME: coolboy-multirom-builder
+      OUTPUT_DIR: coolboy-multirom-builder
+      TOOLS_DIR: output/tools
+      OUTPUT_FILE_X64: coolboy-multirom-builder-linux-x64${{ matrix.sc == 'self-contained' && '-self-contained' || '' }}.tar.gz
+      OUTPUT_FILE_ARM32: coolboy-multirom-builder-linux-arm32${{ matrix.sc == 'self-contained' && '-self-contained' || '' }}.tar.gz
+      OUTPUT_FILE_ARM64: coolboy-multirom-builder-linux-arm64${{ matrix.sc == 'self-contained' && '-self-contained' || '' }}.tar.gz
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        submodules: true
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 6.0.x
+    - name: Get ARM toolchain
+      run: sudo apt-get install gcc-arm-linux-gnueabihf gcc-aarch64-linux-gnu
+    - name: Copy main files
+      run: >-
+           mkdir -p ${{ env.OUTPUT_DIR }} &&
+           cp -fR *.asm Makefile LICENSE README.md configs spec demos games images footer.* output
+    - name: Get Release File Name & Upload URL
+      id: get_release_info
+      env:
+        TAG_REF_NAME: ${{ github.event.repository.updated_at }}
+        REPOSITORY_NAME: ${{ github.repository }}
+      run: |
+        value=`cat release_url/release_url.txt`
+        echo upload_url=$value >> $GITHUB_OUTPUT
+    - name: Build CoolboyCombiner for Linux-x64
+      env:
+        SC_OPS: ${{ matrix.sc == 'self-contained' && '--self-contained true' || '--no-self-contained' }}
+      run: dotnet publish tools_sources/CoolboyCombiner -c Release -r linux-x64 -o ${{ env.TOOLS_DIR }} ${{ env.SC_OPS }}
+    - name: Build NesTiler for Linux-x64
+      env:
+        SC_OPS: ${{ matrix.sc == 'self-contained' && '--self-contained true' || '--no-self-contained' }}
+      run: dotnet publish tools_sources/NesTiler/NesTiler -c Release -r linux-x64 -o ${{ env.TOOLS_DIR }} ${{ env.SC_OPS }}
+    - name: Build nesasm for Linux-x64
+      run: make -C tools_sources/nesasm/source EXEDIR=../../../${{ env.TOOLS_DIR }}
+    - name: Remove unnecessary files
+      run: rm -f ${{ env.TOOLS_DIR }}/*.md
+    - name: Test build
+      run: make -C ${{ env.OUTPUT_DIR }} all
+    - name: Clean
+      run: make -C ${{ env.OUTPUT_DIR }} clean
+    - name: Archive
+      env:
+        CMD: tar -czvf
+      run: |
+        ${{ env.CMD }} ${{ env.OUTPUT_FILE_X64 }} ${{ env.OUTPUT_DIR }}
+    - name: Upload
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.get_release_info.outputs.upload_url }}
+        asset_path: ${{ env.OUTPUT_FILE_X64 }}
+        asset_name: ${{ env.OUTPUT_FILE_X64 }}
+        asset_content_type: tar.gz
+    - name: Clean
+      run: >-
+           rm -f ${{ env.TOOLS_DIR }}/* &&
+           make -C tools_sources/nesasm/source clean
+    - name: Build CoolboyCombiner for Linux-ARM32
+      env:
+        SC_OPS: ${{ matrix.sc == 'self-contained' && '--self-contained true' || '--no-self-contained' }}
+      run: dotnet publish tools_sources/CoolboyCombiner -c Release -r linux-arm -o ${{ env.TOOLS_DIR }} ${{ env.SC_OPS }}
+    - name: Build NesTiler for Linux-ARM32
+      env:
+        SC_OPS: ${{ matrix.sc == 'self-contained' && '--self-contained true' || '--no-self-contained' }}
+      run: dotnet publish tools_sources/NesTiler/NesTiler -c Release -r linux-arm -o ${{ env.TOOLS_DIR }} ${{ env.SC_OPS }}
+    - name: Build nesasm for Linux-ARM32
+      run: make -C tools_sources/nesasm/source EXEDIR=../../../${{ env.TOOLS_DIR }} CC=arm-linux-gnueabihf-gcc
+    - name: Remove unnecessary files
+      run: rm -f ${{ env.TOOLS_DIR }}/*.md
+    - name: Archive
+      env:
+        CMD: tar -czvf
+      run: |
+        ${{ env.CMD }} ${{ env.OUTPUT_FILE_ARM32 }} ${{ env.OUTPUT_DIR }}
+    - name: Upload
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.get_release_info.outputs.upload_url }}
+        asset_path: ${{ env.OUTPUT_FILE_ARM32 }}
+        asset_name: ${{ env.OUTPUT_FILE_ARM32 }}
+        asset_content_type: tar.gz
+    - name: Clean
+      run: >-
+           rm -f ${{ env.TOOLS_DIR }}/* &&
+           make -C tools_sources/nesasm/source clean
+    - name: Build CoolboyCombiner for Linux-ARM64
+      env:
+        SC_OPS: ${{ matrix.sc == 'self-contained' && '--self-contained true' || '--no-self-contained' }}
+      run: dotnet publish tools_sources/CoolboyCombiner -c Release -r linux-arm64 -o ${{ env.TOOLS_DIR }} ${{ env.SC_OPS }}
+    - name: Build NesTiler for Linux-ARM64
+      env:
+        SC_OPS: ${{ matrix.sc == 'self-contained' && '--self-contained true' || '--no-self-contained' }}
+      run: dotnet publish tools_sources/NesTiler/NesTiler -c Release -r linux-arm64 -o ${{ env.TOOLS_DIR }} ${{ env.SC_OPS }}
+    - name: Build nesasm for Linux-ARM64
+      run: make -C tools_sources/nesasm/source EXEDIR=../../../${{ env.TOOLS_DIR }} CC=aarch64-linux-gnu-gcc
+    - name: Remove unnecessary files
+      run: rm -f ${{ env.TOOLS_DIR }}/*.md
+    - name: Archive
+      env:
+        CMD: tar -czvf
+      run: |
+        ${{ env.CMD }} ${{ env.OUTPUT_FILE_ARM64 }} ${{ env.OUTPUT_DIR }}
+    - name: Upload
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.get_release_info.outputs.upload_url }}
+        asset_path: ${{ env.OUTPUT_FILE_ARM64 }}
+        asset_name: ${{ env.OUTPUT_FILE_ARM64 }}
+        asset_content_type: tar.gz
+
+  build-macos:
+    needs: create-release
+    strategy:
+      matrix:
+        sc: [no-self-contained, self-contained]
+    runs-on: macos-latest
+    env:
+      APP_NAME: coolboy-multirom-builder
+      OUTPUT_DIR: coolboy-multirom-builder
+      TOOLS_DIR: output/tools
+      OUTPUT_FILE: coolboy-multirom-builder-osx-x64${{ matrix.sc == 'self-contained' && '-self-contained' || '' }}.tar.gz
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        submodules: true
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 6.0.x
+    - name: Setup argp
+      run: brew install argp-standalone
+    - name: Copy main files
+      run: >-
+           mkdir -p ${{ env.OUTPUT_DIR }} &&
+           cp -fR *.asm Makefile LICENSE README.md configs spec demos games images footer.* output
+    - name: Build CoolboyCombiner for MacOS-x64
+      env:
+        SC_OPS: ${{ matrix.sc == 'self-contained' && '--self-contained true' || '--no-self-contained' }}
+      run: dotnet publish tools_sources/CoolboyCombiner -c Release -r osx-x64 -o ${{ env.TOOLS_DIR }} ${{ env.SC_OPS }}
+    - name: Build NesTiler for MacOS-x64
+      env:
+        SC_OPS: ${{ matrix.sc == 'self-contained' && '--self-contained true' || '--no-self-contained' }}
+      run: dotnet publish tools_sources/NesTiler/NesTiler -c Release -r osx-x64 -o ${{ env.TOOLS_DIR }} ${{ env.SC_OPS }}
+    - name: Build nesasm for MacOS-x64
+      run: make -C tools_sources/nesasm/source EXEDIR=../../../${{ env.TOOLS_DIR }}
+    - name: Remove unnecessary files
+      run: rm -f ${{ env.TOOLS_DIR }}/*.md
+    - name: Test build
+      run: make -C ${{ env.OUTPUT_DIR }} all
+    - name: Clean
+      run: make -C ${{ env.OUTPUT_DIR }} clean
+    - name: Archive
+      env:
+        CMD: tar -czvf
+      run: |
+        ${{ env.CMD }} ${{ env.OUTPUT_FILE }} ${{ env.OUTPUT_DIR }}
+    - name: Load Release URL File from release job
+      uses: actions/download-artifact@v1
+      with:
+        name: release_url
+    - name: Upload
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.get_release_info.outputs.upload_url }}
+        asset_path: ${{ env.OUTPUT_FILE }}
+        asset_name: ${{ env.OUTPUT_FILE }}
+        asset_content_type: tar.gz
+
+  build-windows:
+    needs: create-release
+    strategy:
+      matrix:
+        sc: [no-self-contained, self-contained]
+    runs-on: windows-latest
+    env:
+      APP_NAME: coolboy-multirom-builder
+      OUTPUT_DIR: coolboy-multirom-builder
+      TOOLS_DIR: output/tools
+      OUTPUT_FILE: coolboy-multirom-builder-win-x64${{ matrix.sc == 'self-contained' && '-self-contained' || '' }}.zip
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        submodules: true
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 6.0.x
+    - name: Setup msys
+      uses: msys2/setup-msys2@v2
+      with:
+        update: true
+        install: >-
+          base-devel
+          gcc
+          git
+          libargp-devel
+    - name: Copy main files
+      shell: msys2 {0}
+      run: >-
+           mkdir -p ${{ env.OUTPUT_DIR }} &&
+           cp -fR *.asm Makefile LICENSE README.md configs spec demos games images footer.* *.bat output
+    - name: Build CoolboyCombiner for Win-x64
+      env:
+        SC_OPS: ${{ matrix.sc == 'self-contained' && '--self-contained true' || '--no-self-contained' }}
+      run: dotnet publish tools_sources/CoolboyCombiner -c Release -r win-x64 -o ${{ env.TOOLS_DIR }} ${{ env.SC_OPS }}
+    - name: Build NesTiler for Win-x64
+      env:
+        SC_OPS: ${{ matrix.sc == 'self-contained' && '--self-contained true' || '--no-self-contained' }}
+      run: dotnet publish tools_sources/NesTiler/NesTiler -c Release -r win-x64 -o ${{ env.TOOLS_DIR }} ${{ env.SC_OPS }}
+    - name: Remove unnecessary files
+      shell: msys2 {0}
+      run: rm -f ${{ env.TOOLS_DIR }}/*.md
+    - name: Build nesasm for Win-x64
+      shell: msys2 {0}
+      run: make -C tools_sources/nesasm/source EXEDIR=../../../${{ env.TOOLS_DIR }}
+    - name: Test build
+      shell: msys2 {0}
+      run: make -C ${{ env.OUTPUT_DIR }} all
+    - name: Clean
+      shell: msys2 {0}
+      run: make -C ${{ env.OUTPUT_DIR }} clean
+    - name: Archive
+      env:
+        CMD: zip -r9
+      run: |
+        ${{ env.CMD }} ${{ env.OUTPUT_FILE }} ${{ env.OUTPUT_DIR }}
+    - name: Load Release URL File from release job
+      uses: actions/download-artifact@v1
+      with:
+        name: release_url
+    - name: Get Release File Name & Upload URL
+      id: get_release_info
+      env:
+        TAG_REF_NAME: ${{ github.event.repository.updated_at }}
+        REPOSITORY_NAME: ${{ github.repository }}
+      run: |
+        value=`cat release_url/release_url.txt`
+        echo upload_url=$value >> $GITHUB_OUTPUT
+    - name: Upload
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.get_release_info.outputs.upload_url }}
+        asset_path: ${{ env.OUTPUT_FILE }}
+        asset_name: ${{ env.OUTPUT_FILE }}
+        asset_content_type: zip
