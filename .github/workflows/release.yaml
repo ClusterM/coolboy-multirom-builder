@@ -253,6 +253,7 @@ jobs:
           gcc
           git
           libargp-devel
+          zip
     - name: Copy main files
       shell: msys2 {0}
       run: >-
