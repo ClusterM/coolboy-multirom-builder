@@ -33,7 +33,7 @@ jobs:
     env:
       APP_NAME: coolboy-multirom-builder
       OUTPUT_DIR: coolboy-multirom-builder
-      TOOLS_DIR: output/tools
+      TOOLS_DIR: coolboy-multirom-builder/tools
       OUTPUT_FILE_X64: coolboy-multirom-builder-linux-x64${{ matrix.sc == 'self-contained' && '-self-contained' || '' }}.tar.gz
       OUTPUT_FILE_ARM32: coolboy-multirom-builder-linux-arm32${{ matrix.sc == 'self-contained' && '-self-contained' || '' }}.tar.gz
       OUTPUT_FILE_ARM64: coolboy-multirom-builder-linux-arm64${{ matrix.sc == 'self-contained' && '-self-contained' || '' }}.tar.gz
@@ -164,7 +164,7 @@ jobs:
     env:
       APP_NAME: coolboy-multirom-builder
       OUTPUT_DIR: coolboy-multirom-builder
-      TOOLS_DIR: output/tools
+      TOOLS_DIR: coolboy-multirom-builder/tools
       OUTPUT_FILE: coolboy-multirom-builder-osx-x64${{ matrix.sc == 'self-contained' && '-self-contained' || '' }}.tar.gz
     steps:
     - name: Checkout
@@ -233,7 +233,7 @@ jobs:
     env:
       APP_NAME: coolboy-multirom-builder
       OUTPUT_DIR: coolboy-multirom-builder
-      TOOLS_DIR: output/tools
+      TOOLS_DIR: coolboy-multirom-builder/tools
       OUTPUT_FILE: coolboy-multirom-builder-win-x64${{ matrix.sc == 'self-contained' && '-self-contained' || '' }}.zip
     steps:
     - name: Checkout
