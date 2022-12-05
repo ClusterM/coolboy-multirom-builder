@@ -30,7 +30,7 @@ MINDKIDS_OPTION=--mindkids
 endif
 
 ENABLE_SAVES ?= 0
-ifneq ($(SAVES),0)
+ifneq ($(ENABLE_SAVES),0)
 SAVES_OPTION=--saves
 endif
 
