@@ -86,7 +86,7 @@ Possible options:
 * **BADSECTORS** - use as `BADSECTORS=0,5,10` - specify list of bad sectors if you need to write cartridge with bad flash memory, default is none
 * **REPORT** - use as `REPORT=report.txt` - specify file for human-readable build report, default is none
 * **ENABLE_SOUND** - use as `ENABLE_SOUND=1` - enable or disable sound in the loader menu, default is `ENABLE_SOUND=1`
-* **STARS** - use as `STARS=30` - amount of background stars in the loader menu, default is `STARS=30`, maximum is `STARS=62`
+* **STARS** - use as `STARS=30` - amount of background stars in the loader menu, maximum is `STARS=62`, default is `STARS=30`
 * **STARS_DIRECTION** - use as `STARS_DIRECTION=1` - direction of background stars in the loader menu, `STARS_DIRECTION=0` - down to up, `STARS_DIRECTION=1` - up to down, default is up to down
 * **STAR_SPAWN_INTERVAL** - use as `STAR_SPAWN_INTERVAL=90` - spawn interval of background stars in the loader menu, default is `STAR_SPAWN_INTERVAL=90`
 * **ENABLE_RIGHT_CURSOR** - use as `ENABLE_RIGHT_CURSOR=1` - show or hide right cursor in the loader menu, default is `ENABLE_RIGHT_CURSOR=1`
