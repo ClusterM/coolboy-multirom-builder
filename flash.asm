@@ -46,9 +46,11 @@ flash_erase_sector:
   sta $8555
   lda #$30
   sta $8000
+  lda #$FF
 .wait:
-  lda $8000
-  cmp #$FF
+  cmp $8000
+  bne .wait
+  cmp $8000
   bne .wait
   jmp flash_return
 
