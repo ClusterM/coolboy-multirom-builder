@@ -64,64 +64,62 @@ INSTANT_STATE_SAVE .equ 0
   .ifndef USE_FLASH_WRITING
 USE_FLASH_WRITING .equ 0
   .endif
-  .ifndef COOLBOY_VERSION
-COOLBOY_VERSION .equ 0
+  .ifndef COOLBOY_SUBMAPPER
+COOLBOY_SUBMAPPER .equ 0
+  .endif
+  .ifndef GAMES_DB
+GAMES_DB                        .sequ "games.asm"
+  .endif
+  .ifndef MENU_HEADER_PATTERN_TABLE_BIN
+MENU_HEADER_PATTERN_TABLE_BIN   .sequ "menu_header_pattern_table.bin"
+  .endif
+  .ifndef MENU_HEADER_NAME_TABLE_BIN
+MENU_HEADER_NAME_TABLE_BIN      .sequ "menu_header_name_table.bin"
+  .endif
+  .ifndef MENU_HEADER_ATTRIBUTE_TABLE_BIN
+MENU_HEADER_ATTRIBUTE_TABLE_BIN .sequ "menu_header_attribute_table.bin"
+  .endif
+  .ifndef MENU_HEADER_BG_PALETTE_0
+MENU_HEADER_BG_PALETTE_0        .sequ "bg_palette0.bin"
+  .endif
+  .ifndef MENU_HEADER_BG_PALETTE_1
+MENU_HEADER_BG_PALETTE_1        .sequ "bg_palette1.bin"
+  .endif
+  .ifndef MENU_HEADER_BG_PALETTE_2
+MENU_HEADER_BG_PALETTE_2        .sequ "bg_palette2.bin"
+  .endif
+  .ifndef GAMES_DB
+GAMES_DB                        .sequ "games.asm"
+  .endif
+  .ifndef MENU_HEADER_PATTERN_TABLE_BIN
+MENU_HEADER_PATTERN_TABLE_BIN   .sequ "menu_header_pattern_table.bin"
+  .endif
+  .ifndef MENU_HEADER_NAME_TABLE_BIN
+MENU_HEADER_NAME_TABLE_BIN      .sequ "menu_header_name_table.bin"
+  .endif
+  .ifndef MENU_HEADER_ATTRIBUTE_TABLE_BIN
+MENU_HEADER_ATTRIBUTE_TABLE_BIN .sequ "menu_header_attribute_table.bin"
+  .endif
+  .ifndef MENU_HEADER_BG_PALETTE_0
+MENU_HEADER_BG_PALETTE_0        .sequ "bg_palette0.bin"
+  .endif
+  .ifndef MENU_HEADER_BG_PALETTE_1
+MENU_HEADER_BG_PALETTE_1        .sequ "bg_palette1.bin"
+  .endif
+  .ifndef MENU_HEADER_BG_PALETTE_2
+MENU_HEADER_BG_PALETTE_2        .sequ "bg_palette2.bin"
   .endif
 
-  .if COOLBOY_VERSION = 0
+  .if COOLBOY_SUBMAPPER % 2 = 0
 COOLBOY_REG_0 .equ $6000
 COOLBOY_REG_1 .equ $6001
 COOLBOY_REG_2 .equ $6002
 COOLBOY_REG_3 .equ $6003
-  .endif
-  .if COOLBOY_VERSION = 1
+  .else
 COOLBOY_REG_0 .equ $5000
 COOLBOY_REG_1 .equ $5001
 COOLBOY_REG_2 .equ $5002
 COOLBOY_REG_3 .equ $5003
-  .endif
-
-  .ifndef GAMES_DB
-GAMES_DB                        .sequ "games.asm"
-  .endif
-  .ifndef MENU_HEADER_PATTERN_TABLE_BIN
-MENU_HEADER_PATTERN_TABLE_BIN   .sequ "menu_header_pattern_table.bin"
-  .endif
-  .ifndef MENU_HEADER_NAME_TABLE_BIN
-MENU_HEADER_NAME_TABLE_BIN      .sequ "menu_header_name_table.bin"
-  .endif
-  .ifndef MENU_HEADER_ATTRIBUTE_TABLE_BIN
-MENU_HEADER_ATTRIBUTE_TABLE_BIN .sequ "menu_header_attribute_table.bin"
-  .endif
-  .ifndef MENU_HEADER_BG_PALETTE_0
-MENU_HEADER_BG_PALETTE_0        .sequ "bg_palette0.bin"
-  .endif
-  .ifndef MENU_HEADER_BG_PALETTE_1
-MENU_HEADER_BG_PALETTE_1        .sequ "bg_palette1.bin"
-  .endif
-  .ifndef MENU_HEADER_BG_PALETTE_2
-MENU_HEADER_BG_PALETTE_2        .sequ "bg_palette2.bin"
-  .endif
-  .ifndef GAMES_DB
-GAMES_DB                        .sequ "games.asm"
-  .endif
-  .ifndef MENU_HEADER_PATTERN_TABLE_BIN
-MENU_HEADER_PATTERN_TABLE_BIN   .sequ "menu_header_pattern_table.bin"
-  .endif
-  .ifndef MENU_HEADER_NAME_TABLE_BIN
-MENU_HEADER_NAME_TABLE_BIN      .sequ "menu_header_name_table.bin"
-  .endif
-  .ifndef MENU_HEADER_ATTRIBUTE_TABLE_BIN
-MENU_HEADER_ATTRIBUTE_TABLE_BIN .sequ "menu_header_attribute_table.bin"
-  .endif
-  .ifndef MENU_HEADER_BG_PALETTE_0
-MENU_HEADER_BG_PALETTE_0        .sequ "bg_palette0.bin"
-  .endif
-  .ifndef MENU_HEADER_BG_PALETTE_1
-MENU_HEADER_BG_PALETTE_1        .sequ "bg_palette1.bin"
-  .endif
-  .ifndef MENU_HEADER_BG_PALETTE_2
-MENU_HEADER_BG_PALETTE_2        .sequ "bg_palette2.bin"
   .endif
 
   .include GAMES_DB

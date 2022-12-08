@@ -183,16 +183,18 @@ load_all_chr_banks:
 select_prg_chr_banks:
   lda #$00
   sta $A001 ; PRG-RAM protect
+
   ;<NROM_BANK_L (1-8)  <NROM_BANK_H (9-11)  <CHR_BANK8 (7-3)
   ;6000
+  .if (COOLBOY_SUBMAPPER <= 3) | (COOLBOY_SUBMAPPER = 8) | (COOLBOY_SUBMAPPER = 9)
   lda <NROM_BANK_L
+  and #%00111000 ; 6(19), 5(18), 4(17)
   lsr A
   lsr A
   lsr A
-  and #%00000111 ; 6, 5, 4
   sta <TMP
   lda <NROM_BANK_H
-  and #%00000110 ; 11, 10
+  and #%00000110 ; 11(24), 10(23)
   asl A
   asl A
   asl A
@@ -204,36 +206,114 @@ select_prg_chr_banks:
   ora <TMP
   ora #%11000000 ; reset PRG MASK, CHR control
   sta COOLBOY_REG_0
-  ;6001
+  .endif
+  .if (COOLBOY_SUBMAPPER = 4) | (COOLBOY_SUBMAPPER = 5)
   lda <NROM_BANK_L
-  and #%10000000 ; 8
-  lsr A
-  lsr A
+  and #%00111000 ; 6(19), 5(18), 4(17)
   lsr A
   lsr A
   lsr A
   sta <TMP
   lda <NROM_BANK_L
-  and #%01000000 ; 7
+  and #%11000000 ; 8(21), 7(20)
+  lsr A
+  lsr A
+  ora <TMP
+  sta <TMP
+  lda <CHR_BANK8
+  and #%00010000
+  lsr A
+  ora <TMP
+  ora #%11000000 ; reset PRG MASK, CHR control
+  sta COOLBOY_REG_0
+  .endif
+
+  ;6001
+  .if (COOLBOY_SUBMAPPER = 0) | (COOLBOY_SUBMAPPER = 1) | (COOLBOY_SUBMAPPER = 6) | (COOLBOY_SUBMAPPER = 7)
+  lda <NROM_BANK_L
+  and #%01000000 ; 7(20)
+  lsr A
+  lsr A
+  sta <TMP
+  lda <NROM_BANK_L
+  and #%10000000 ; 8(21)
+  lsr A
+  lsr A
+  lsr A
   lsr A
   lsr A
   ora <TMP
   sta <TMP
   lda <NROM_BANK_H
-  and #%00000001 ; 9
+  and #%00000001 ; 9(22)
   asl A
   asl A
   asl A
   ora <TMP
   ora #%10000000 ; reset PRG MASK
   sta COOLBOY_REG_1
+  .endif
+  .if (COOLBOY_SUBMAPPER = 2) | (COOLBOY_SUBMAPPER = 3)
+  lda <NROM_BANK_L
+  and #%01000000 ; 7(20)
+  lsr A
+  lsr A
+  lsr A
+  sta <TMP
+  lda <NROM_BANK_L
+  and #%10000000 ; 8(21)
+  lsr A
+  lsr A
+  lsr A
+  lsr A
+  lsr A
+  lsr A
+  ora <TMP
+  sta <TMP
+  lda <NROM_BANK_H
+  and #%00000001 ; 9(22)
+  asl A
+  asl A
+  ora <TMP
+  ora #%10010000 ; reset PRG MASK, 16 KiB bank
+  sta COOLBOY_REG_1
+  .endif
+  .if (COOLBOY_SUBMAPPER = 4) | (COOLBOY_SUBMAPPER = 5)
+  lda #%10000000 ; reset PRG MASK
+  sta COOLBOY_REG_1
+  .endif
+  .if (COOLBOY_SUBMAPPER = 8) | (COOLBOY_SUBMAPPER = 9)
+  lda <NROM_BANK_L
+  and #%01000000 ; 7(20)
+  lsr A
+  lsr A
+  lsr A
+  sta <TMP
+  lda <NROM_BANK_L
+  and #%10000000 ; 8(21)
+  lsr A
+  lsr A
+  lsr A
+  lsr A
+  lsr A
+  ora <TMP
+  sta <TMP
+  lda <NROM_BANK_H
+  and #%00000001 ; 9(22)
+  asl A
+  ora <TMP
+  ora #%10010000 ; reset PRG MASK, 16 KiB bank
+  sta COOLBOY_REG_1
+  .endif
+
   ;6002
   lda <CHR_BANK8
   and #%00001111
   sta COOLBOY_REG_2
+
   ;6003
   lda <NROM_BANK_L
-  and #%00000111 ; 3, 2, 1
+  and #%00000111 ; 3(16), 2(15), 1(14)
   asl A
   ora #%00010000 ; NROM mode
   sta COOLBOY_REG_3

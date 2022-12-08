@@ -30,8 +30,8 @@ namespace com.clusterrr.Famicom.CoolBoy
             {
                 var version = Assembly.GetExecutingAssembly()?.GetName()?.Version;
                 Console.WriteLine($"COOLBOY Combiner v{version?.Major}.{version?.Minor}{((version?.Build ?? 0) > 0 ? $"{(char)((byte)'a' + version!.Build)}" : "")}");
-                Console.WriteLine($"  Commit {Properties.Resources.gitCommit} @ {REPO_PATH}");
 #if DEBUG
+                Console.WriteLine($"  Commit {Properties.Resources.gitCommit} @ {REPO_PATH}");
                 Console.WriteLine($"  Debug version, build time: {BUILD_TIME.ToLocalTime()}");
 #endif
                 Console.WriteLine("  (c) Alexey 'Cluster' Avdyukhin / https://clusterrr.com / clusterrr@clusterrr.com");
@@ -338,21 +338,83 @@ namespace com.clusterrr.Famicom.CoolBoy
                         if ((game.Flags & Game.GameFlags.WillNotWorkOnNewFamiclone) != 0)
                             Console.WriteLine($"WARNING! \"{Path.GetFileName(game.FileName)}\" is not compatible with new Famiclones");
 
-                        // TODO: replace magic numbers
                         int bank = game.PrgOffset / 0x4000;
-                        byte r0 = (byte)(((bank >> 3) & 0x07) // 5, 4, 3 bits
-                            | (((bank >> 9) & 0x03) << 4) // 10, 9 bits
-                            | ((game.PRG.Length > 128 * 1024) ? 0 : (1 << 6)) // PRG mask 256KB
-                            | ((game.CHR.Length > 128 * 1024) ? 0 : (1 << 7))); // CHR mask 256KB
-                        byte r1 = (byte)((((bank >> 7) & 0x03) << 2) // 8, 7
-                            | (((bank >> 6) & 1) << 4) // 6
-                            | ((game.PRG.Length > 0x4000) ? (1 << 1) : 0) // PRG mask 32KB
-                            | ((game.PRG.Length > 1024 * 1024) ? (1 << 5) : 0) // PRG mask 2048KB
-                            | ((game.PRG.Length > 512 * 1024) ? (1 << 6) : 0) // PRG mask 1024KB
-                            | ((game.PRG.Length > 256 * 1024) ? 0 : (1 << 7))); // PRG mask 512KB
-                        byte r2 = 0;
-                        byte r3 = (byte)(((game.Mapper == 0) ? (1 << 4) : 0) // NROM mode
-                            | ((bank & 7) << 1) // 2, 1, 0 bits
+                        byte r0, r1, r2, r3;
+                        switch (config.Submapper)
+                        {
+                            case 0:
+                            case 1:
+                            case 2:
+                            case 3:
+                            case 8:
+                            case 9:
+                                r0 = (byte)(
+                                      ((bank >> 3) & 0b111) // 5(19), 4(18), 3(17) bits
+                                    | (((bank >> 9) & 0b11) << 4) // 10(24), 9(23) bits
+                                    | ((game.PRG.Length > 128 * 1024) ? 0 : (1 << 6)) // PRG mask 256KB
+                                    | ((game.CHR.Length > 128 * 1024) ? 0 : (1 << 7))); // CHR mask 256KB
+                                break;
+                            case 4:
+                            case 5:
+                                r0 = (byte)(
+                                      ((bank >> 3) & 0b111) // 5(19), 4(18), 3(17) bits
+                                    | (((bank >> 6) & 0b11) << 4) // 7(21), 6(20) bits
+                                    | ((game.PRG.Length > 128 * 1024) ? 0 : (1 << 6)) // PRG mask 256KB
+                                    | ((game.CHR.Length > 128 * 1024) ? 0 : (1 << 7))); // CHR mask 256KB
+                                break;
+                            // TODO: submappers 6 and 7
+                            default:
+                                throw new NotSupportedException($"Submapper {config.Submapper} is not supported");
+                        }
+                        switch (config.Submapper)
+                        {
+                            case 0:
+                            case 1:
+                            case 6:
+                            case 7:
+                                r1 = (byte)(
+                                      (((bank >> 7) & 0b11) << 2) // 8(22), 7(21)
+                                    | (((bank >> 6) & 1) << 4) // 6(20)
+                                    | ((game.PRG.Length > 0x4000) ? (1 << 1) : 0) // PRG mask 32KB
+                                    | ((game.PRG.Length > 1024 * 1024) ? (1 << 5) : 0) // PRG mask 2048KB
+                                    | ((game.PRG.Length > 512 * 1024) ? (1 << 6) : 0) // PRG mask 1024KB
+                                    | ((game.PRG.Length > 256 * 1024) ? 0 : (1 << 7))); // PRG mask 512KB
+                                break;
+                            case 2:
+                            case 3:
+                                r1 = (byte)(
+                                      (((bank >> 7) & 0b11) << 1) // 8(22), 7(21)
+                                    | (((bank >> 6) & 1) << 3) // 6(20)
+                                    | ((game.PRG.Length <= 0x4000) ? (1 << 4) : 0) // PRG mask 32KB, inverted
+                                    | ((game.PRG.Length > 1024 * 1024) ? (1 << 5) : 0) // PRG mask 2048KB
+                                    | ((game.PRG.Length > 512 * 1024) ? (1 << 6) : 0) // PRG mask 1024KB
+                                    | ((game.PRG.Length > 256 * 1024) ? 0 : (1 << 7))); // PRG mask 512KB
+                                break;
+                            case 4:
+                            case 5:
+                                r1 = (byte)(
+                                      ((game.PRG.Length > 0x4000) ? (1 << 1) : 0) // PRG mask 32KB
+                                    | ((game.PRG.Length > 1024 * 1024) ? (1 << 5) : 0) // PRG mask 2048KB
+                                    | ((game.PRG.Length > 512 * 1024) ? (1 << 6) : 0) // PRG mask 1024KB
+                                    | ((game.PRG.Length > 256 * 1024) ? 0 : (1 << 7))); // PRG mask 512KB
+                                break;
+                            case 8:
+                            case 9:
+                                r1 = (byte)(
+                                      (((bank >> 8) & 1) << 1) // 8(22)
+                                    | (((bank >> 7) & 1) << 2) // 7(21)
+                                    | (((bank >> 6) & 1) << 3) // 6(20)
+                                    | ((game.PRG.Length <= 0x4000) ? (1 << 4) : 0) // PRG mask 32KB, inverted
+                                    | ((game.PRG.Length > 1024 * 1024) ? (1 << 5) : 0) // PRG mask 2048KB
+                                    | ((game.PRG.Length > 512 * 1024) ? (1 << 6) : 0) // PRG mask 1024KB
+                                    | ((game.PRG.Length > 256 * 1024) ? 0 : (1 << 7))); // PRG mask 512KB
+                                break;
+                            default:
+                                throw new NotSupportedException($"Submapper {config.Submapper} is not supported");
+                        }
+                        r2 = 0;
+                        r3 = (byte)(((game.Mapper == 0) ? (1 << 4) : 0) // NROM mode
+                            | ((bank & 0b111) << 1) // 2, 1, 0 bits
                             | 0x80); // lockout
 
                         regs["reg_0"].Add(string.Format("${0:X2}", r0));
@@ -555,7 +617,7 @@ namespace com.clusterrr.Famicom.CoolBoy
                         var process = new Process();
                         var cp866 = CodePagesEncodingProvider.Instance.GetEncoding(866) ?? Encoding.ASCII;
                         process.StartInfo.FileName = config.NesAsm;
-                        process.StartInfo.Arguments = $"\"menu.asm\" -r -o - -C \"GAMES_DB={config.AsmFile!}\" -D COOLBOY_VERSION={(!config.Mindkids ? 0 : 1)} -D USE_FLASH_WRITING={(!config.Saves ? 0 : 1)} " + config.NesAsmArgs;
+                        process.StartInfo.Arguments = $"\"menu.asm\" -r -o - -C \"GAMES_DB={config.AsmFile!}\" -D COOLBOY_SUBMAPPER={config.Submapper} -D USE_FLASH_WRITING={(!config.Saves ? 0 : 1)} " + config.NesAsmArgs;
                         process.StartInfo.WorkingDirectory = config.SourcesDir;
                         process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
                         process.StartInfo.UseShellExecute = false;
@@ -652,10 +714,20 @@ namespace com.clusterrr.Famicom.CoolBoy
                 {
                     if (!string.IsNullOrEmpty(config.UnifFile))
                     {
-                        Console.Write("Saving UNIF file... ");
+                        Console.Write("Saving as UNIF file... ");
                         var u = new UnifFile();
                         u.Version = 5;
-                        u.Mapper = !config.Mindkids ? "COOLBOY" : "MINDKIDS";
+                        switch (config.Submapper)
+                        {
+                            case 0:
+                                u.Mapper = "COOLBOY";
+                                break;
+                            case 1:
+                                u.Mapper = "MINDKIDS";
+                                break;
+                            default:
+                                throw new NotSupportedException($"There is no UNIF name for submapper {config.Submapper}, can't save as UNIF");
+                        }
                         u.Mirroring = MirroringType.MapperControlled;
                         u.PRG0 = result!;
                         u.Battery = config.Saves; // Actually, not supported by any emulator
@@ -664,13 +736,13 @@ namespace com.clusterrr.Famicom.CoolBoy
                     }
                     if (!string.IsNullOrEmpty(config.Nes20File))
                     {
-                        Console.Write("Saving NES file... ");
+                        Console.Write("Saving as NES file... ");
                         var nes = new NesFile();
                         nes.Version = NesFile.iNesVersion.NES20;
                         nes.PRG = result!;
                         nes.CHR = Array.Empty<byte>();
                         nes.Mapper = 268;
-                        nes.Submapper = (byte)(!config.Mindkids ? 0 : 1);
+                        nes.Submapper = config.Submapper;
                         if (config.Saves)
                             nes.PrgNvRamSize = 8 * 1024;
                         else
@@ -682,7 +754,7 @@ namespace com.clusterrr.Famicom.CoolBoy
                     }
                     if (!string.IsNullOrEmpty(config.BinFile))
                     {
-                        Console.Write("Saving BIN file... ");
+                        Console.Write("Saving as BIN file... ");
                         File.WriteAllBytes(config.BinFile, result!);
                         Console.WriteLine("OK");
                     }
