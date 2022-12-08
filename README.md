@@ -1,4 +1,6 @@
 # COOLBOY Multirom Builder
+[![Build test](https://github.com/ClusterM/coolboy-multirom-builder/actions/workflows/build.yaml/badge.svg)](https://github.com/ClusterM/coolboy-multirom-builder/actions/workflows/build.yaml)
+
 This is a toolset that allows you to create multirom images for the AA6023 ASICs mapper which used in a cheap COOLBOY/MINDKIDS (and clones) Famicom cartridges (mappers 268.0 and 268.1). This ROM can be run on a emulator or written to a real hardware.
 
 ![Loader menu](https://user-images.githubusercontent.com/4236181/205486564-f5cfbe38-adcb-4574-8b9f-16e534052a8d.gif)
@@ -63,7 +65,7 @@ Just run:
 `make <targets> [options]`
 
 Possible targets:
-* **nes20** - build .nes file (NES 2.)
+* **nes20** - build .nes file (NES 2.0)
 * **unif** - build .unf file (UNIF)
 * **bin** - build raw binary file, can be used with flash memory programmer
 * **all** - build .nes, .unf and .bin files at once
