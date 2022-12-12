@@ -383,7 +383,8 @@ namespace com.clusterrr.Famicom.CoolBoy
                             case 2:
                             case 3:
                                 r1 = (byte)(
-                                      (((bank >> 7) & 0b11) << 1) // 8(22), 7(21)
+                                      (((bank >> 8) & 1) << 1) // 8(22)
+                                    | (((bank >> 7) & 1) << 2) // 7(21)
                                     | (((bank >> 6) & 1) << 3) // 6(20)
                                     | ((game.PRG.Length <= 0x4000) ? (1 << 4) : 0) // PRG mask 32KB, inverted
                                     | ((game.PRG.Length > 1024 * 1024) ? (1 << 5) : 0) // PRG mask 2048KB
@@ -394,17 +395,6 @@ namespace com.clusterrr.Famicom.CoolBoy
                             case 5:
                                 r1 = (byte)(
                                       ((game.PRG.Length > 0x4000) ? (1 << 1) : 0) // PRG mask 32KB
-                                    | ((game.PRG.Length > 1024 * 1024) ? (1 << 5) : 0) // PRG mask 2048KB
-                                    | ((game.PRG.Length > 512 * 1024) ? (1 << 6) : 0) // PRG mask 1024KB
-                                    | ((game.PRG.Length > 256 * 1024) ? 0 : (1 << 7))); // PRG mask 512KB
-                                break;
-                            case 8:
-                            case 9:
-                                r1 = (byte)(
-                                      (((bank >> 8) & 1) << 1) // 8(22)
-                                    | (((bank >> 7) & 1) << 2) // 7(21)
-                                    | (((bank >> 6) & 1) << 3) // 6(20)
-                                    | ((game.PRG.Length <= 0x4000) ? (1 << 4) : 0) // PRG mask 32KB, inverted
                                     | ((game.PRG.Length > 1024 * 1024) ? (1 << 5) : 0) // PRG mask 2048KB
                                     | ((game.PRG.Length > 512 * 1024) ? (1 << 6) : 0) // PRG mask 1024KB
                                     | ((game.PRG.Length > 256 * 1024) ? 0 : (1 << 7))); // PRG mask 512KB
