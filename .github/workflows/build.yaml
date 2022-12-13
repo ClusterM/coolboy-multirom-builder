@@ -21,8 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       APP_NAME: coolboy-multirom-builder
-      OUTPUT_DIR: output
-      TOOLS_DIR: output/tools
+      OUTPUT_DIR: coolboy-multirom-builder
+      TOOLS_DIR: coolboy-multirom-builder/tools
       OUTPUT_FILE_X64: coolboy-multirom-builder-linux-x64${{ matrix.sc == 'self-contained' && '-self-contained' || '' }}.tar.gz
       OUTPUT_FILE_ARM32: coolboy-multirom-builder-linux-arm32${{ matrix.sc == 'self-contained' && '-self-contained' || '' }}.tar.gz
       OUTPUT_FILE_ARM64: coolboy-multirom-builder-linux-arm64${{ matrix.sc == 'self-contained' && '-self-contained' || '' }}.tar.gz
@@ -129,8 +129,8 @@ jobs:
     runs-on: macos-latest
     env:
       APP_NAME: coolboy-multirom-builder
-      OUTPUT_DIR: output
-      TOOLS_DIR: output/tools
+      OUTPUT_DIR: coolboy-multirom-builder
+      TOOLS_DIR: coolboy-multirom-builder/tools
       OUTPUT_FILE: coolboy-multirom-builder-osx-x64${{ matrix.sc == 'self-contained' && '-self-contained' || '' }}.tar.gz
     steps:
     - name: Checkout
@@ -181,8 +181,8 @@ jobs:
     runs-on: windows-latest
     env:
       APP_NAME: coolboy-multirom-builder
-      OUTPUT_DIR: output
-      TOOLS_DIR: output/tools
+      OUTPUT_DIR: coolboy-multirom-builder
+      TOOLS_DIR: coolboy-multirom-builder/tools
       OUTPUT_FILE: coolboy-multirom-builder-win-x64${{ matrix.sc == 'self-contained' && '-self-contained' || '' }}.zip
     steps:
     - name: Checkout
@@ -202,6 +202,7 @@ jobs:
           gcc
           git
           libargp-devel
+          zip
     - name: Copy main files
       shell: msys2 {0}
       run: >-
