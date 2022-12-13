@@ -528,7 +528,7 @@ namespace com.clusterrr.Famicom.CoolBoy
                     asmResult.AppendLine("string_flash:");
                     asmResult.Append(BytesToAsm(StringToTiles("FLASH:", symbols)));
                     asmResult.AppendLine("string_read_only:");
-                    asmResult.Append(BytesToAsm(StringToTiles("READ ONLY", symbols)));
+                    asmResult.Append(BytesToAsm(StringToTiles(config.Saves ? "READ ONLY" : "FORCED READ ONLY", symbols)));
                     asmResult.AppendLine("string_writable:");
                     asmResult.Append(BytesToAsm(StringToTiles("WRITABLE", symbols)));
                     asmResult.AppendLine("flash_sizes:");
