@@ -203,6 +203,14 @@ namespace com.clusterrr.Famicom.CoolBoy
                 Console.WriteLine("At least one parameter required: --unif, --nes20 or --bin");
                 return null;
             }
+            if (((config.Submapper == 5) || (config.Submapper == 6)) && config.MaxRomSizeMB > 4)
+            {
+                throw new InvalidDataException($"ROM with submapper {config.Submapper} can't be > 4MB");
+            }
+            if (config.MaxRomSizeMB > 32)
+            {
+                throw new InvalidDataException($"ROM can't be > 32MB");
+            }
 
             return config;
         }

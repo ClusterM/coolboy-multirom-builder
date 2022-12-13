@@ -403,8 +403,9 @@ namespace com.clusterrr.Famicom.CoolBoy
                                 throw new NotSupportedException($"Submapper {config.Submapper} is not supported");
                         }
                         r2 = 0;
-                        r3 = (byte)(((game.Mapper == 0) ? (1 << 4) : 0) // NROM mode
-                            | ((bank & 0b111) << 1) // 2, 1, 0 bits
+                        r3 = (byte)(
+                            ((game.Mapper == 0) ? (1 << 4) : 0) // NROM mode
+                            | ((bank & 0b111) << 1) // 2(16), 1(15), 0(14) bits
                             | 0x80); // lockout
 
                         regs["reg_0"].Add(string.Format("${0:X2}", r0));
