@@ -1,7 +1,7 @@
 # COOLBOY Multirom Builder
 [![Build test](https://github.com/ClusterM/coolboy-multirom-builder/actions/workflows/build.yaml/badge.svg)](https://github.com/ClusterM/coolboy-multirom-builder/actions/workflows/build.yaml)
 
-This is a toolset that allows you to create multirom images for the **AA6023** ASICs mapper (usually labelled **SMD132**/**SMD133**) which used in a cheap **COOLBOY**/**MINDKIDS** (and clones) Famicom cartridges (mappers 268.0 and 268.1). This ROM can be run on a emulator or written to a real hardware.
+This is a toolset that allows you to create multirom images for the **AA6023** ASICs mapper (usually labelled **SMD132**/**SMD133**) which used in a cheap **COOLBOY**/**MINDKIDS** (and clones) Famicom cartridges (mappers 268, submappers 0, 1, 2, 3, 4 and 5). This ROM can be run on a emulator or written to a real hardware.
 
 ![Loader menu](https://user-images.githubusercontent.com/4236181/205486564-f5cfbe38-adcb-4574-8b9f-16e534052a8d.gif)
 
