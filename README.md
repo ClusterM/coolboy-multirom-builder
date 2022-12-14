@@ -81,7 +81,7 @@ Possible options:
 * **OUTPUT_UNIF** - use as `OUTPUT_UNIF=output.unf` - output .unf file for **unif** target
 * **OUTPUT_BIN** - use as `OUTPUT_BIN=output.bin` - output .bin file for **bin** target
 * **CONFIGS_DIR** - use as `CONFIGS_DIR=configs` - directory with game list files, default is "configs"
-* **MINDKIDS** - use as `MINDKIDS=1` - use MINDKIDS mapper (mapper 268, submapper 1) instead of COOLBOY (mapper 268, submapper 0), e.g. use registers as $5xxx instead of $6xxx, default is `MINDKIDS=0`
+* **SUBMAPPER** - use as `SUBMAPPER=1` - specify submapper (chip/board version) to use, possible values: 0, 1, 2, 3, 4, 5, default is `SUBMAPPER=0`
 * **ENABLE_SAVES** - use as `ENABLE_SAVES=1` - use self-writable flash memory to store game saves and remember last selected game if supported, default is `ENABLE_SAVES=0`, see ["about flash saving system" section](README.md#about-flash-saving-system)
 * **ENABLE_LAST_GAME_SAVING**  - use as `ENABLE_LAST_GAME_SAVING=1` - remember last played game, works only with `ENABLE_SAVES=1` and self-writable flash memory, default is `ENABLE_LAST_GAME_SAVING=1`
 * **NOSORT** - use as `NOSORT=1` - disable automatic alphabetically game sorting, default is `NOSORT=0`
@@ -171,6 +171,5 @@ You can always download the latest version at [https://github.com/ClusterM/coolb
 Also, you can download automatic nightly builds: [http://clusterm.github.io/coolboy-multirom-builder/](http://clusterm.github.io/coolboy-multirom-builder/).
 
 ## Donate
-https://www.donationalerts.com/r/clustermeerkat
-
-https://boosty.to/cluster
+* [Donation Alerts](https://www.donationalerts.com/r/clustermeerkat)
+* [Boosty](https://boosty.to/cluster)
