@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 namespace com.clusterrr.Famicom.CoolBoy
 {
@@ -143,12 +144,14 @@ namespace com.clusterrr.Famicom.CoolBoy
                         i++;
                         break;
                     case "language":
-                        switch (value.ToLower())
+                        switch (value.Split(new[] { '.' }).First().ToLower())
                         {
                             case "eng":
+                            case "en_en":
                                 config.Language = CombinerLanguage.English;
                                 break;
                             case "rus":
+                            case "ru_ru":
                                 config.Language = CombinerLanguage.Russian;
                                 break;
                             default:
