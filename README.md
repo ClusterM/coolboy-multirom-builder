@@ -168,7 +168,7 @@ Alternative method (easier and faster):
 ## Download
 You can always download the latest version at [https://github.com/ClusterM/coolboy-multirom-builder/releases](https://github.com/ClusterM/coolboy-multirom-builder/releases).
 
-Also, you can download automatic nightly builds: [http://clusterm.github.io/coolboy-multirom-builder/](http://clusterm.github.io/coolboy-multirom-builder/).
+Also, you can download automatic interim builds: [http://clusterm.github.io/coolboy-multirom-builder/](http://clusterm.github.io/coolboy-multirom-builder/).
 
 ## Donate
 * [Donation Alerts](https://www.donationalerts.com/r/clustermeerkat)
