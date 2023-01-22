@@ -187,7 +187,7 @@ runmenu: $(MENU_ROM)
 	$(EMU) $(MENU_ROM)
 
 write: $(OUTPUT_NES20)
-	$(DUMPER) write-coolboy --file $(OUTPUT_NES20) --sound --check $(BADS_OPTION) $(LOCK_OPTION) $(DUMPER_OPTS)
+	$(DUMPER) write-coolboy --file $(OUTPUT_NES20) --sound --check $(BADS_OPTION) $(LOCK_OPTION) --coolboy-submapper $(SUBMAPPER) $(DUMPER_OPTS)
 
 $(HEADER_FILES): $(IMAGES_DIR)/$(MENU_IMAGE)
 	$(TILER) --colors $(COLORS) \
