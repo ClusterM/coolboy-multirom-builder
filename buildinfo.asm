@@ -255,12 +255,21 @@ prg_ram_detect:
   sta PRG_RAM_PRESENT
   jsr enable_prg_ram
   lda #$AA
+  .if (COOLBOY_SUBMAPPER != 2)
   sta $7000
   cmp $7000
   bne .end
   lda #$55
   sta $7000
   cmp $7000
+  .else
+  sta $6000
+  cmp $6000
+  bne .end
+  lda #$55
+  sta $6000
+  cmp $6000
+  .endif
   bne .end
   lda #1
   sta PRG_RAM_PRESENT
