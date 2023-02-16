@@ -40,7 +40,7 @@ tools\coolboy-combiner build --games configs\games.list --asm games_games.list_e
         --maxromsize 32 --maxchrsize 256 --language eng ^
         --nesasm ./tools/nesasm ^
         --nesasm-args " -C MENU_HEADER_PATTERN_TABLE_BIN=menu_header_pattern_table_menu_header.png.bin -C MENU_HEADER_NAME_TABLE_BIN=menu_header_name_table_menu_header.png.bin -C MENU_HEADER_ATTRIBUTE_TABLE_BIN=menu_header_attribute_table_menu_header.png.bin -C MENU_HEADER_BG_PALETTE_0=bg_palette0_menu_header.png.bin -C MENU_HEADER_BG_PALETTE_1=bg_palette1_menu_header.png.bin -C MENU_HEADER_BG_PALETTE_2=bg_palette2_menu_header.png.bin" ^
-        --nes20 multirom.nes
+        --nes20 multirom.nes --submapper 3
 IF NOT ERRORLEVEL 0 GOTO error
 IF NOT EXIST multirom.nes GOTO error
 echo Success! multirom.nes generated
