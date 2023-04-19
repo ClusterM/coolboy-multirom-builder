@@ -171,5 +171,6 @@ You can always download the latest version at [https://github.com/ClusterM/coolb
 Also, you can download automatic interim builds: [http://clusterm.github.io/coolboy-multirom-builder/](http://clusterm.github.io/coolboy-multirom-builder/).
 
 ## Donate
+* PayPal: cluster@cluster.wtf
 * [Donation Alerts](https://www.donationalerts.com/r/clustermeerkat)
 * [Boosty](https://boosty.to/cluster)
