@@ -35,7 +35,7 @@ namespace com.clusterrr.Famicom.CoolBoy
 #if !INTERIM
                     $"v{versionStr}"
 #else
-                    "intrerim version"
+                    "interim version"
 #endif
 #if DEBUG
                 + " (debug)"
