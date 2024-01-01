@@ -1,4 +1,4 @@
-﻿using com.clusterrr.Famicom.Containers;
+using com.clusterrr.Famicom.Containers;
 using com.clusterrr.Famicom.Multirom;
 using com.clusterrr.Tools;
 using System;
@@ -176,7 +176,7 @@ namespace com.clusterrr.Famicom.CoolBoy
                         }
                     }
 
-                    int usedSpace = LOADER_SIZE;
+                    int usedSpace = LOADER_OFFSET + LOADER_SIZE;
                     int notFittedSize = 0;
                     var sortedPrgs = games.OrderByDescending(g => g.PRG.Length).Where(g => g.PRG.Length > 0);
                     foreach (var game in sortedPrgs)
@@ -189,7 +189,7 @@ namespace com.clusterrr.Famicom.CoolBoy
                             {
                                 game.PrgOffset = pos;
                                 Array.Copy(game.PRG, 0, result, pos, game.PRG.Length);
-                                usedSpace = Math.Max(LOADER_OFFSET + LOADER_SIZE, Math.Max(usedSpace, pos + game.PRG.Length));
+                                usedSpace = Math.Max(usedSpace, pos + game.PRG.Length);
                                 fitted = true;
                                 Console.WriteLine($"offset: 0x{pos:X8}");
                                 break;
@@ -214,7 +214,7 @@ namespace com.clusterrr.Famicom.CoolBoy
                             {
                                 game.ChrOffset = pos;
                                 Array.Copy(game.CHR, 0, result, pos, game.CHR.Length);
-                                usedSpace = Math.Max(LOADER_OFFSET + LOADER_SIZE, Math.Max(usedSpace, pos + game.CHR.Length));
+                                usedSpace = Math.Max(usedSpace, pos + game.CHR.Length);
                                 fitted = true;
                                 Console.WriteLine($"offset: 0x{pos:X8}");
                                 break;
@@ -235,11 +235,8 @@ namespace com.clusterrr.Famicom.CoolBoy
                     int romSize = usedSpace;
                     // Round up to sector size
                     usedSpace = FLASH_SECTOR_SIZE * (int)Math.Ceiling((float)usedSpace / (float)FLASH_SECTOR_SIZE);
-                    // Space for saves
                     if (config.Saves)
                     {
-                        // Round up to sector size
-                        usedSpace = FLASH_SECTOR_SIZE * (int)Math.Ceiling((float)usedSpace / (float)FLASH_SECTOR_SIZE);
                         // Space for saves
                         usedSpace += FLASH_SECTOR_SIZE * 2;
                     }
@@ -309,8 +306,8 @@ namespace com.clusterrr.Famicom.CoolBoy
                     // Error collection
                     var problems = new List<Exception>();
 
-                    if ((notFittedSize > 0) && (usedSpace > config.MaxRomSizeMB * 1024 * 1024))
-                        problems.Add(new OutOfMemoryException($"ROM is too big: {Math.Round(usedSpace / 1024.0 / 1024.0, 3)}MB"));
+                    if (usedSpace > config.MaxRomSizeMB * 1024 * 1024)
+                        problems.Add(new OutOfMemoryException($"ROM is too big: ~{Math.Round(usedSpace / 1024.0 / 1024.0, 3)}MB"));
                     if (games.Count > MAX_GAME_COUNT)
                         problems.Add(new InvalidDataException($"Too many ROMs: {games.Count} (maximum {MAX_GAME_COUNT})"));
                     if (saveId > MAX_SAVE_COUNT)
