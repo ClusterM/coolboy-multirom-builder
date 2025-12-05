@@ -146,16 +146,13 @@ namespace com.clusterrr.Famicom.CoolBoy
                     case "language":
                         switch (value.Split(new[] { '.' }).First().ToLower())
                         {
-                            case "eng":
-                            case "en_en":
-                                config.Language = CombinerLanguage.English;
-                                break;
                             case "rus":
                             case "ru_ru":
                                 config.Language = CombinerLanguage.Russian;
                                 break;
                             default:
-                                throw new InvalidDataException($"Invalid language: {value}");
+                                config.Language = CombinerLanguage.English;
+                                break;
                         }
                         i++;
                         break;
